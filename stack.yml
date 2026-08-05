@@ -10,7 +10,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_v17:/var/lib/postgresql/data
     networks:
       - homologaciones-net
     deploy:
@@ -46,7 +46,7 @@ services:
         - "traefik.docker.network=traefik-public"
 
 volumes:
-  pgdata:
+  pgdata_v17:
   uploads_data:
 
 networks:
