@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  dbhomologaciones:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - homologaciones-net
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  web:
+    image: ghcr.io/byronmoreno/homologaciones:latest
+    environment:
+      - FLASK_CONFIG=${FLASK_CONFIG}
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@dbhomologaciones:${POSTGRES_PORT}/${POSTGRES_DB}
+    volumes:
+      - uploads_data:/app/app/static/uploads
+    networks:
+      - homologaciones-net
+      - traefik-public
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.homologaciones.entrypoints=http"
+        - "traefik.http.routers.homologaciones.rule=Host(`homologaciones.byronrm.com`)"
+        - "traefik.http.middlewares.homologaciones-https-redirect.redirectscheme.scheme=https"
+        - "traefik.http.routers.homologaciones.middlewares=portainer-https-redirect"
+        - "traefik.http.routers.homologaciones-secure.entrypoints=https"
+        - "traefik.http.routers.homologaciones-secure.rule=Host(`homologaciones.byronrm.com`)"
+        - "traefik.http.routers.homologaciones-secure.tls=true"
+        - "traefik.http.routers.homologaciones-secure.tls.certresolver=http"
+        - "traefik.http.routers.homologaciones-secure.service=homologaciones"
+        - "traefik.http.services.homologaciones.loadbalancer.server.port=5000"
+        - "traefik.docker.network=traefik-public"
+
+volumes:
+  pgdata:
+  uploads_data:
+
+networks:
+  homologaciones-net:
+    driver: overlay
+  traefik-public:
+    external: true
