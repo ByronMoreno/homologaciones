@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   dbhomologaciones:
-    image: postgres:17-alpine
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -10,7 +10,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - pgdata_v17:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     networks:
       - homologaciones-net
     deploy:
@@ -46,7 +46,7 @@ services:
         - "traefik.docker.network=traefik-public"
 
 volumes:
-  pgdata_v17:
+  pgdata:
   uploads_data:
 
 networks:
