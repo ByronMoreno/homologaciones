@@ -40,3 +40,36 @@ def logout():
     logout_user()
     flash('Has cerrado sesión correctamente.', 'success')
     return redirect(url_for('auth.login'))
+
+@auth_bp.route('/cambiar-password', methods=['GET', 'POST'])
+@login_required
+def cambiar_password():
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if not current_password or not new_password or not confirm_password:
+            flash('Todos los campos son obligatorios.', 'error')
+            return redirect(url_for('auth.cambiar_password'))
+            
+        if not current_user.check_password(current_password):
+            flash('La contraseña actual es incorrecta.', 'error')
+            return redirect(url_for('auth.cambiar_password'))
+            
+        if new_password != confirm_password:
+            flash('Las nuevas contraseñas no coinciden.', 'error')
+            return redirect(url_for('auth.cambiar_password'))
+            
+        if len(new_password) < 6:
+            flash('La nueva contraseña debe tener al menos 6 caracteres.', 'error')
+            return redirect(url_for('auth.cambiar_password'))
+            
+        current_user.set_password(new_password)
+        from extensions import db
+        db.session.commit()
+        
+        flash('Tu contraseña ha sido actualizada con éxito.', 'success')
+        return redirect(url_for('homologaciones.dashboard'))
+        
+    return render_template('auth/cambiar_password.html')
