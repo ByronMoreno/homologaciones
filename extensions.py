@@ -14,5 +14,5 @@ jwt = JWTManager()
 mail = Mail()
 
 # Inicializamos el limitador con una función de clave por defecto, sin asociarlo a ninguna app aún
-limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
+limiter = Limiter(key_func=get_remote_address, default_limits=["5000 per day", "1000 per hour"])
 cache = Cache()
