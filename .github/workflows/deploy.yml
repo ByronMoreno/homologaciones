@@ -72,28 +72,24 @@ jobs:
             echo "🚀 Iniciando despliegue de HomologaSys"
             cd /home/${{ secrets.VPS_USER }}/app
             
-            # Escribir archivo .env directamente en el VPS
-            echo "FLASK_CONFIG=${{ secrets.FLASK_CONFIG }}" > .env
-            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-            echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
-            echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
+            # Escribir archivo .env directamente en el VPS con export
+            echo "export FLASK_CONFIG='${{ secrets.FLASK_CONFIG }}'" > .env
+            echo "export SECRET_KEY='${{ secrets.SECRET_KEY }}'" >> .env
+            echo "export POSTGRES_USER='${{ secrets.POSTGRES_USER }}'" >> .env
+            echo "export POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}'" >> .env
+            echo "export POSTGRES_DB='${{ secrets.POSTGRES_DB }}'" >> .env
+            echo "export POSTGRES_HOST='${{ secrets.POSTGRES_HOST }}'" >> .env
+            echo "export POSTGRES_PORT='${{ secrets.POSTGRES_PORT }}'" >> .env
             
             echo "${{ secrets.GHCR_PATH }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             echo "📦 Descargando imagen"
             docker pull ghcr.io/byronmoreno/homologaciones:latest
             
-            set -a
-            [ -f .env ] && . .env
-            set +a
-            
             # Limpiar red bridge conflictiva previa si existiese
             docker network rm homologaciones_homologaciones-net || true
             
             echo "🔄 Actualizando stack en Docker Swarm"
-            docker stack deploy -c stack.yml homologaciones
+            . .env && docker stack deploy -c stack.yml homologaciones
             
             echo "✅ Despliegue completado con éxito"
