@@ -1,3 +1,4 @@
+# Entrypoint principal para iniciar la aplicación Flask (HomologaSys)
 import os
 from dotenv import load_dotenv
 
