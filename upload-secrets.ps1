@@ -23,7 +23,7 @@ Write-Host "Subiendo VPS_SSH_KEY..."
 gh secret set VPS_SSH_KEY --body $VPS_SSH_KEY
 
 Write-Host "Subiendo VPS_SSH_PORT..."
-gh secret set VPS_SSH_PORT --body "22"
+gh secret set VPS_SSH_PORT --body "1987"
 
 # 2. Subir Token de GitHub con el nuevo nombre GHCR_PATH
 Write-Host "Subiendo GHCR_PATH..."
