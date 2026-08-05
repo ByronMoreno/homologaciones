@@ -1,0 +1,171 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Reportes e Indicadores - HomologaSys{% endblock %}
+{% block page_title %}Estadísticas del Proceso{% endblock %}
+{% block page_subtitle %}Visualiza indicadores clave y genera reportes de las homologaciones{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('reports.exportar_csv') }}" class="btn btn-premium btn-premium-primary btn-sm">
+    <i class="bi bi-file-earmark-excel-fill"></i> Exportar a Excel (CSV)
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Tarjetas de Métricas Clave -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="glass-panel p-4 h-100 text-center">
+            <span class="text-secondary fw-semibold mb-1 d-block" style="font-size: 0.85rem;">Total Histórico de Solicitantes</span>
+            <h3 class="display-5 fw-bold text-primary mb-1">{{ total_estudiantes }}</h3>
+            <p class="text-muted mb-0" style="font-size: 0.75rem;">Estudiantes postulantes registrados</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-panel p-4 h-100 text-center">
+            <span class="text-secondary fw-semibold mb-1 d-block" style="font-size: 0.85rem;">Homologaciones Concluidas</span>
+            <h3 class="display-5 fw-bold text-success mb-1">{{ total_finalizados }}</h3>
+            <p class="text-muted mb-0" style="font-size: 0.75rem;">Estudiantes matriculados en UNIB.E</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-panel p-4 h-100 text-center">
+            <span class="text-secondary fw-semibold mb-1 d-block" style="font-size: 0.85rem;">Tasa de Conclusión</span>
+            <h3 class="display-5 fw-bold text-info mb-1">{{ tasa_conversion }}%</h3>
+            <p class="text-muted mb-0" style="font-size: 0.75rem;">Porcentaje de carpetas completadas</p>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos Estadísticos -->
+<div class="row g-4">
+    <!-- Distribución de Estados -->
+    <div class="col-lg-6">
+        <div class="glass-card-premium p-4 h-100">
+            <h3 class="h6 mb-4 font-display fw-bold"><i class="bi bi-pie-chart-fill text-primary me-1"></i> Estado de los Expedientes</h3>
+            <div style="position: relative; height: 320px;">
+                <canvas id="estadoChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribución por Carrera -->
+    <div class="col-lg-6">
+        <div class="glass-card-premium p-4 h-100">
+            <h3 class="h6 mb-4 font-display fw-bold"><i class="bi bi-bar-chart-fill text-primary me-1"></i> Estudiantes por Carrera</h3>
+            <div style="position: relative; height: 320px;">
+                <canvas id="carreraChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Cargar paleta del tema actual (para soporte dark mode en graficos)
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const textColor = isDark ? '#9ca3af' : '#475569';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+
+        // 1. Configuración Gráfico de Estados
+        const estadoCtx = document.getElementById('estadoChart').getContext('2d');
+        const estadoChart = new Chart(estadoCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    'Pendiente Docs', 
+                    'Doc. Incompleta', 
+                    'Doc. Completa', 
+                    'Sellado Sec.', 
+                    'Entregado Univ.', 
+                    'Matriculado'
+                ],
+                datasets: [{
+                    data: [
+                        {{ stats_estado.get('Pendiente Documentos', 0) }},
+                        {{ stats_estado.get('Documentación Incompleta', 0) }},
+                        {{ stats_estado.get('Documentación Completa', 0) }},
+                        {{ stats_estado.get('Sellado Secretaría', 0) }},
+                        {{ stats_estado.get('Entregado a Universidad', 0) }},
+                        {{ stats_estado.get('Matriculado', 0) }}
+                    ],
+                    backgroundColor: [
+                        '#f59e0b', // Amber
+                        '#ef4444', // Rose
+                        '#06b6d4', // Cyan
+                        '#3b82f6', // Blue
+                        '#818cf8', // Indigo
+                        '#10b981'  // Emerald
+                    ],
+                    borderWidth: isDark ? 2 : 1,
+                    borderColor: isDark ? '#111827' : '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: textColor,
+                            font: { family: 'Inter', size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Configuración Gráfico de Carreras
+        const carreraCtx = document.getElementById('carreraChart').getContext('2d');
+        
+        // Extraer etiquetas y datos del backend
+        const carreraLabels = [];
+        const carreraData = [];
+        
+        {% for name, count in stats_carrera.items() %}
+            carreraLabels.push("{{ name }}");
+            carreraData.push({{ count }});
+        {% endfor %}
+
+        const carreraChart = new Chart(carreraCtx, {
+            type: 'bar',
+            data: {
+                labels: carreraLabels,
+                datasets: [{
+                    label: 'Estudiantes',
+                    data: carreraData,
+                    backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                    hoverBackgroundColor: '#6366f1',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textColor, font: { family: 'Inter', size: 10 } }
+                    },
+                    y: {
+                        grid: { color: gridColor },
+                        ticks: { 
+                            color: textColor, 
+                            font: { family: 'Inter', size: 11 },
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

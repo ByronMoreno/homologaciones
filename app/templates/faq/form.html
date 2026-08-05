@@ -1,0 +1,75 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{% if faq %}Editar FAQ{% else %}Crear FAQ{% endif %} - HomologaSys{% endblock %}
+{% block page_title %}{% if faq %}Editar Pregunta Frecuente{% else %}Nueva Pregunta Frecuente{% endif %}{% endblock %}
+{% block page_subtitle %}{% if faq %}Modifica la pregunta y respuesta seleccionada{% else %}Agrega una nueva pregunta al centro de ayuda del estudiante{% endif %}{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('faq.index') }}" class="btn btn-premium btn-premium-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i> Cancelar
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card-premium p-4 p-md-5">
+            <form action="{% if faq %}{{ url_for('faq.editar', faq_id=faq.id) }}{% else %}{{ url_for('faq.nueva') }}{% endif %}" method="POST" class="d-flex flex-column gap-4">
+                <!-- Categoría -->
+                <div>
+                    <label for="category_id" class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.85rem;">Categoría <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                            <i class="bi bi-folder-fill"></i>
+                        </span>
+                        <select name="category_id" id="category_id" class="form-select form-premium border-start-0 ps-0" required>
+                            <option value="" disabled {% if not faq %}selected{% endif %}>Selecciona una categoría</option>
+                            {% for cat in categorias %}
+                                <option value="{{ cat.id }}" {% if faq and faq.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Pregunta -->
+                <div>
+                    <label for="question" class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.85rem;">Pregunta <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                            <i class="bi bi-question-circle"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control form-premium border-start-0 ps-0" 
+                               id="question" 
+                               name="question" 
+                               placeholder="Ej: ¿Dónde descargo la malla curricular?" 
+                               value="{{ faq.question if faq else '' }}"
+                               required>
+                    </div>
+                </div>
+
+                <!-- Respuesta -->
+                <div>
+                    <label for="answer" class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.85rem;">Respuesta <span class="text-danger">*</span></label>
+                    <textarea name="answer" 
+                              id="answer" 
+                              rows="5" 
+                              class="form-control form-premium" 
+                              placeholder="Escribe la respuesta detallada para resolver la duda..." 
+                              required>{{ faq.answer if faq else '' }}</textarea>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="border-top pt-4 mt-2 d-flex justify-content-end gap-3" style="border-color: var(--border-glass) !important;">
+                    <a href="{{ url_for('faq.index') }}" class="btn btn-premium btn-premium-secondary">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-premium btn-premium-primary px-4">
+                        <i class="bi bi-save-fill me-1"></i> {% if faq %}Guardar Cambios{% else %}Crear Pregunta{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

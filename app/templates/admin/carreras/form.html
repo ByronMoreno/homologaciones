@@ -1,0 +1,98 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ title }} - HomologaSys{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}Ingresa los detalles básicos y enlaces de almacenamiento de Drive de la carrera{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-panel p-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h3 class="h5 mb-0 font-display fw-bold text-primary">
+                    <i class="bi bi-mortarboard-fill me-2"></i>Detalles de la Carrera
+                </h3>
+                <a href="{{ url_for('homologaciones.list_carreras') }}" class="btn btn-premium btn-premium-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+            
+            <form action="{{ action_url }}" method="POST" class="needs-validation" novalidate>
+                <div class="row g-3">
+                    <!-- Código -->
+                    <div class="col-md-4">
+                        <label for="code" class="form-label text-secondary fw-semibold text-sm">Código de Carrera <span class="text-danger">*</span></label>
+                        <input type="text" 
+                               name="code" 
+                               id="code" 
+                               class="form-control form-premium uppercase" 
+                               placeholder="Ej: DS" 
+                               maxlength="10"
+                               required 
+                               value="{{ carrera.code if carrera else '' }}">
+                        <div class="invalid-feedback">Ingresa el código abreviado.</div>
+                    </div>
+                    
+                    <!-- Nombre -->
+                    <div class="col-md-8">
+                        <label for="name" class="form-label text-secondary fw-semibold text-sm">Nombre Completo <span class="text-danger">*</span></label>
+                        <input type="text" 
+                               name="name" 
+                               id="name" 
+                               class="form-control form-premium" 
+                               placeholder="Ej: Desarrollo de Software" 
+                               required 
+                               value="{{ carrera.name if carrera else '' }}">
+                        <div class="invalid-feedback">Ingresa el nombre de la carrera.</div>
+                    </div>
+                    
+                    <!-- Enlace Malla -->
+                    <div class="col-12">
+                        <label for="malla_link" class="form-label text-secondary fw-semibold text-sm">Enlace de la Malla Curricular (Google Drive)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-primary"><i class="bi bi-google-play"></i></span>
+                            <input type="url" 
+                                   name="malla_link" 
+                                   id="malla_link" 
+                                   class="form-control form-premium" 
+                                   placeholder="https://drive.google.com/drive/folders/..." 
+                                   value="{{ carrera.malla_link if carrera else '' }}">
+                        </div>
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Enlace a la carpeta o archivo PDF de la malla en Google Drive.</div>
+                    </div>
+                    
+                    <!-- Enlace Syllabus -->
+                    <div class="col-12">
+                        <label for="syllabus_link" class="form-label text-secondary fw-semibold text-sm">Enlace de los Syllabus / Programas de Estudio (Google Drive)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-primary"><i class="bi bi-google-play"></i></span>
+                            <input type="url" 
+                                   name="syllabus_link" 
+                                   id="syllabus_link" 
+                                   class="form-control form-premium" 
+                                   placeholder="https://drive.google.com/drive/folders/..." 
+                                   value="{{ carrera.syllabus_link if carrera else '' }}">
+                        </div>
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Enlace a la carpeta contenedora de todos los syllabus de la carrera.</div>
+                    </div>
+                    
+                    <!-- Botones de Acción -->
+                    <div class="col-12 d-flex justify-content-end gap-3 mt-4 pt-3 border-top" style="border-color: var(--border-glass) !important;">
+                        <a href="{{ url_for('homologaciones.list_carreras') }}" class="btn btn-premium btn-premium-secondary py-2 px-4">Cancelar</a>
+                        <button type="submit" class="btn btn-premium btn-premium-primary py-2 px-4">
+                            <i class="bi bi-save2-fill me-1"></i> Guardar Carrera
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Autofocus y capitalizar código
+    document.getElementById('code').addEventListener('input', function(e) {
+        this.value = this.value.toUpperCase();
+    });
+</script>
+{% endblock %}

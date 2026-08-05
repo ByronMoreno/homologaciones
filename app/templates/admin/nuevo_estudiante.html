@@ -1,0 +1,159 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Registrar Nuevo Estudiante - HomologaSys{% endblock %}
+{% block page_title %}Registrar Estudiante{% endblock %}
+{% block page_subtitle %}Registra un nuevo estudiante para iniciar su expediente de homologación{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('homologaciones.dashboard') }}" class="btn btn-premium btn-premium-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i> Cancelar
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card-premium p-4 p-md-5">
+            <h2 class="h5 mb-4 font-display fw-bold border-bottom pb-3" style="border-color: var(--border-glass) !important;">
+                <i class="bi bi-person-fill-add me-1 text-primary"></i> Información del Estudiante
+            </h2>
+            
+            <form action="{{ url_for('homologaciones.nuevo_estudiante') }}" method="POST" class="row g-4" onsubmit="return validarCedula()">
+                <!-- Cédula -->
+                <div class="col-md-6">
+                    <label for="cedula" class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.85rem;">Cédula de Identidad <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                            <i class="bi bi-card-text"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control form-premium border-start-0 ps-0" 
+                               id="cedula" 
+                               name="cedula" 
+                               placeholder="Ej: 1726543890" 
+                               maxlength="10" 
+                               required>
+                    </div>
+                    <div class="form-text text-muted" style="font-size: 0.75rem;">Debe contener exactamente 10 dígitos numéricos.</div>
+                </div>
+
+                <!-- Carrera -->
+                <div class="col-md-6">
+                    <label for="carrera_id" class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.85rem;">Carrera a Homologar <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </span>
+                        <select name="carrera_id" id="carrera_id" class="form-select form-premium border-start-0 ps-0" required>
+                            <option value="" disabled selected>Selecciona la carrera</option>
+                            {% for carrera in carreras %}
+                                <option value="{{ carrera.id }}">{{ carrera.name }} ({{ carrera.code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Nombre -->
+                <div class="col-md-6">
+                    <label for="name" class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.85rem;">Nombres <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input type="text" class="form-control form-premium border-start-0 ps-0" id="name" name="name" placeholder="Ej: Juan Andrés" required>
+                    </div>
+                </div>
+
+                <!-- Apellido -->
+                <div class="col-md-6">
+                    <label for="lastname" class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.85rem;">Apellidos <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input type="text" class="form-control form-premium border-start-0 ps-0" id="lastname" name="lastname" placeholder="Ej: Pérez Muñoz" required>
+                    </div>
+                </div>
+
+                <!-- Correo Electrónico -->
+                <div class="col-md-6">
+                    <label for="email" class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.85rem;">Correo Electrónico <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input type="email" class="form-control form-premium border-start-0 ps-0" id="email" name="email" placeholder="Ej: juan.perez@yavirac.edu.ec" required>
+                    </div>
+                </div>
+
+                <!-- Teléfono (WhatsApp) -->
+                <div class="col-md-6">
+                    <label for="phone" class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.85rem;">Teléfono Móvil (WhatsApp)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                            <i class="bi bi-telephone"></i>
+                        </span>
+                        <input type="text" class="form-control form-premium border-start-0 ps-0" id="phone" name="phone" placeholder="Ej: 0987654321">
+                    </div>
+                    <div class="form-text text-muted" style="font-size: 0.75rem;">Para notificaciones de seguimiento rápidas por WhatsApp.</div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="col-12 border-top pt-4 mt-3 d-flex justify-content-end gap-3" style="border-color: var(--border-glass) !important;">
+                    <a href="{{ url_for('homologaciones.dashboard') }}" class="btn btn-premium btn-premium-secondary">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-premium btn-premium-primary px-4">
+                        <i class="bi bi-person-check-fill me-1"></i> Registrar e Iniciar Trámite
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function validarCedula() {
+        const cedula = document.getElementById('cedula').value.trim();
+        
+        // Expresión regular para 10 dígitos numéricos
+        const regex = /^[0-9]{10}$/;
+        if (!regex.test(cedula)) {
+            alert('La cédula debe constar únicamente de 10 números.');
+            return false;
+        }
+        
+        // Validación básica del último dígito verificador ecuatoriano
+        const provincia = parseInt(cedula.substring(0, 2), 10);
+        if (provincia < 1 || provincia > 24) {
+            alert('Cédula no válida (código de provincia inválido).');
+            return false;
+        }
+        
+        const digitoVerificador = parseInt(cedula.substring(9, 10), 10);
+        let suma = 0;
+        for (let i = 0; i < 9; i++) {
+            let mult = parseInt(cedula.substring(i, i + 1), 10);
+            if (i % 2 === 0) {
+                mult = mult * 2;
+                if (mult > 9) mult = mult - 9;
+            }
+            suma += mult;
+        }
+        
+        const decenaSuperior = Math.ceil(suma / 10) * 10;
+        const verif = decenaSuperior - suma;
+        
+        // Si el digito verificador coincide
+        if (verif === 10 ? 0 : verif !== digitoVerificador) {
+            // Nota: Algunas cédulas especiales pueden no pasar esto, pero para el 99.9% es correcto.
+            // Dejamos pasar con una advertencia en la consola o lo validamos como advertencia
+            console.warn('Advertencia: El dígito verificador no coincide.');
+        }
+        
+        return true;
+    }
+</script>
+{% endblock %}

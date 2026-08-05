@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Pre-Registro del Estudiante - HomologaSys{% endblock %}
+
+{% block body_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-primary py-5 px-3">
+    <div class="glass-card-premium w-100" style="max-width: 500px; animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
+        <!-- Header Decorativo -->
+        <div class="p-4 text-center border-bottom text-white position-relative" style="background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-info) 100%);">
+            <div class="mb-3 mt-2 display-6 text-white">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <h2 class="h4 mb-1 fw-bold text-white">Pre-Registro Estudiantil</h2>
+            <p class="text-white-50 mb-0" style="font-size: 0.85rem;">Ingresa tus datos para iniciar tu solicitud de homologación</p>
+            
+            <button onclick="toggleTheme()" class="btn btn-sm btn-link text-white position-absolute top-0 end-0 m-3 opacity-75 hover-opacity-100" title="Cambiar Tema">
+                <i class="bi bi-brightness-high-fill fs-5"></i>
+            </button>
+        </div>
+
+        <!-- Formulario -->
+        <div class="p-4 p-md-5">
+            <div class="alert alert-info py-2 px-3 mb-4" style="background-color: var(--color-info-bg); border-color: rgba(6, 182, 212, 0.2); color: var(--color-info); font-size: 0.8rem;">
+                <i class="bi bi-info-circle-fill me-1"></i> Una vez registrado, tu acceso debe ser aprobado por la secretaría del instituto antes de poder ingresar.
+            </div>
+
+            <form action="{{ url_for('students.registro') }}" method="POST" class="d-flex flex-column gap-3" onsubmit="return validarRegistroForm()">
+                <!-- Cédula -->
+                <div>
+                    <label for="cedula" class="form-label fw-semibold text-secondary mb-1" style="font-size: 0.85rem;">Número de Cédula <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0 bg-transparent text-secondary" style="border-color: var(--border-glass);">
+                            <i class="bi bi-card-text"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control form-premium border-start-0 ps-0" 
+                               id="cedula" 
+                               name="cedula" 
+                               placeholder="Ej: 1726543890" 
+                               maxlength="10" 
+                               required
+                               value="{{ cedula_prefilled if cedula_prefilled else '' }}">
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <!-- Nombres -->
+                    <div class="col-md-6">
+                        <label for="name" class="form-label fw-semibold text-secondary mb-1" style="font-size: 0.85rem;">Nombres <span class="text-danger">*</span></label>
+                        <input type="text" 
+                               class="form-control form-premium" 
+                               id="name" 
+                               name="name" 
+                               placeholder="Tus nombres" 
+                               required>
+                    </div>
+                    
+                    <!-- Apellidos -->
+                    <div class="col-md-6">
+                        <label for="lastname" class="form-label fw-semibold text-secondary mb-1" style="font-size: 0.85rem;">Apellidos <span class="text-danger">*</span></label>
+                        <input type="text" 
+                               class="form-control form-premium" 
+                               id="lastname" 
+                               name="lastname" 
+                               placeholder="Tus apellidos" 
+                               required>
+                    </div>
+                </div>
+
+                <!-- Correo -->
+                <div>
+                    <label for="email" class="form-label fw-semibold text-secondary mb-1" style="font-size: 0.85rem;">Correo Electrónico <span class="text-danger">*</span></label>
+                    <input type="email" 
+                           class="form-control form-premium" 
+                           id="email" 
+                           name="email" 
+                           placeholder="nombre@ejemplo.com" 
+                           required>
+                </div>
+
+                <!-- Teléfono -->
+                <div>
+                    <label for="phone" class="form-label fw-semibold text-secondary mb-1" style="font-size: 0.85rem;">Teléfono de Contacto</label>
+                    <input type="text" 
+                           class="form-control form-premium" 
+                           id="phone" 
+                           name="phone" 
+                           placeholder="Ej: 0987654321">
+                </div>
+
+                <!-- Carrera -->
+                <div>
+                    <label for="carrera_id" class="form-label fw-semibold text-secondary mb-1" style="font-size: 0.85rem;">Carrera a la que Postulas <span class="text-danger">*</span></label>
+                    <select name="carrera_id" id="carrera_id" class="form-select form-premium" required>
+                        <option value="" disabled selected>Selecciona tu carrera...</option>
+                        {% for carrera in carreras %}
+                            <option value="{{ carrera.id }}">{{ carrera.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-premium btn-premium-primary py-2.5 w-100 mt-3">
+                    <i class="bi bi-person-check-fill"></i>
+                    <span>Solicitar Registro</span>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Pie de página -->
+        <div class="p-4 bg-light border-top text-center" style="background-color: var(--bg-tertiary) !important; border-color: var(--border-glass) !important;">
+            <p class="text-secondary mb-0" style="font-size: 0.8rem;">
+                ¿Ya tienes una cuenta aprobada? <a href="{{ url_for('students.login') }}" class="fw-semibold text-decoration-none text-primary">Inicia sesión aquí</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function validarRegistroForm() {
+        const cedula = document.getElementById('cedula').value.trim();
+        const regex = /^[0-9]{10}$/;
+        if (!regex.test(cedula)) {
+            alert('La cédula debe constar de exactamente 10 dígitos numéricos.');
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endblock %}

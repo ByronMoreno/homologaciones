@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block body_content %}
+<div class="min-vh-100 d-flex flex-column">
+    <!-- Student Header -->
+    <nav class="navbar navbar-expand-lg border-bottom" style="background-color: var(--bg-secondary); border-color: var(--border-glass) !important;">
+        <div class="container py-2">
+            <a class="navbar-brand sidebar-brand m-0" href="#">
+                <i class="bi bi-mortarboard-fill"></i>
+                <span>HomologaSys <span class="badge badge-premium badge-premium-info fs-6">Estudiante</span></span>
+            </a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <button onclick="toggleTheme()" class="btn btn-sm btn-link text-secondary p-0" title="Alternar Tema">
+                    <i class="bi bi-brightness-high-fill fs-5"></i>
+                </button>
+                {% if session.get('student_id') %}
+                <a href="{{ url_for('students.logout') }}" class="btn btn-outline-danger btn-sm btn-premium py-1 px-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Salir</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Student Main Content -->
+    <main class="flex-grow-1 py-4 py-md-5 bg-primary">
+        <div class="container animate-fade-in">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center border-top mt-auto" style="background-color: var(--bg-secondary); border-color: var(--border-glass) !important;">
+        <p class="text-secondary mb-0" style="font-size: 0.85rem;">
+            &copy; 2026 Instituto Superior Tecnológico Yavirac. Todos los derechos reservados.
+        </p>
+    </footer>
+</div>
+{% endblock %}

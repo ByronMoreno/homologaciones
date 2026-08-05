@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block body_content %}
+<div class="d-flex">
+    <!-- Sidebar Premium -->
+    <aside class="sidebar-premium">
+        <div class="sidebar-brand">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>HomologaSys</span>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="sidebar-item {% if active_page == 'dashboard' %}active{% endif %}">
+                <a href="{{ url_for('homologaciones.dashboard') }}">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item {% if active_page == 'homologaciones' %}active{% endif %}">
+                <a href="{{ url_for('homologaciones.dashboard') }}">
+                    <i class="bi bi-folder-fill"></i>
+                    <span>Expedientes</span>
+                </a>
+            </li>
+            <li class="sidebar-item {% if active_page == 'reports' %}active{% endif %}">
+                <a href="{{ url_for('reports.index') }}">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Estadísticas</span>
+                </a>
+            </li>
+            <li class="sidebar-item {% if active_page == 'faq' %}active{% endif %}">
+                <a href="{{ url_for('faq.index') }}">
+                    <i class="bi bi-question-circle-fill"></i>
+                    <span>Preguntas Frecuentes</span>
+                </a>
+            </li>
+            <li class="sidebar-item {% if active_page == 'carreras' %}active{% endif %}">
+                <a href="{{ url_for('homologaciones.list_carreras') }}">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    <span>Carreras</span>
+                </a>
+            </li>
+            <li class="sidebar-item {% if active_page == 'ciclos' %}active{% endif %}">
+                <a href="{{ url_for('homologaciones.list_ciclos') }}">
+                    <i class="bi bi-calendar-event"></i>
+                    <span>Ciclos Académicos</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-truncate" style="max-width: 130px;">{{ current_user.username if current_user.is_authenticated else 'Invitado' }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ current_user.rol.name if current_user.is_authenticated else 'Ninguno' }}</div>
+                    </div>
+                </div>
+                <button onclick="toggleTheme()" class="btn btn-sm btn-link text-secondary p-0" title="Alternar Tema">
+                    <i class="bi bi-brightness-high-fill fs-5 dark-icon-toggle"></i>
+                </button>
+            </div>
+            
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger w-100 btn-sm btn-premium d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content flex-grow-1">
+        <!-- Top Navigation / Header -->
+        <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-glass) !important;">
+            <div>
+                <h1 class="h3 mb-1">{% block page_title %}Dashboard{% endblock %}</h1>
+                <p class="text-secondary mb-0" style="font-size: 0.85rem;">{% block page_subtitle %}Sistema de control de homologaciones Yavirac{% endblock %}</p>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="d-flex align-items-center gap-3">
+                {% block header_actions %}{% endblock %}
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="animate-fade-in">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</div>
+{% endblock %}

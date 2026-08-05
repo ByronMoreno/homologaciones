@@ -1,0 +1,330 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Expediente - {{ solicitud.estudiante.fullname }}{% endblock %}
+{% block page_title %}Expediente Digital{% endblock %}
+{% block page_subtitle %}Código: {{ solicitud.code }}{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('homologaciones.dashboard') }}" class="btn btn-premium btn-premium-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i> Volver al Panel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Columna Principal: Información General y Checklist -->
+    <div class="col-lg-8">
+        <!-- Tarjeta de Ficha de Estudiante -->
+        <div class="glass-card-premium p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div class="flex-grow-1">
+                    <h2 class="h4 mb-1">{{ solicitud.estudiante.fullname }}</h2>
+                    <p class="text-secondary mb-2">
+                        <i class="bi bi-card-text me-1"></i> Cédula: <strong>{{ solicitud.estudiante.cedula }}</strong> | 
+                        <i class="bi bi-mortarboard-fill me-1"></i> Carrera: <strong>{{ solicitud.estudiante.carrera.name }}</strong> |
+                        <i class="bi bi-calendar-event-fill me-1"></i> Ciclo: <strong>{{ solicitud.estudiante.ciclo.name if solicitud.estudiante.ciclo else 'Sin ciclo vinculado' }}</strong>
+                    </p>
+                    <p class="text-secondary mb-0" style="font-size: 0.85rem;">
+                        <i class="bi bi-envelope me-1"></i> {{ solicitud.estudiante.email }} | 
+                        <i class="bi bi-telephone me-1"></i> {{ solicitud.estudiante.phone or 'Sin teléfono' }}
+                    </p>
+                    
+                    <div class="mt-2 d-flex gap-2 align-items-center">
+                        <button class="btn btn-xs btn-outline-primary btn-premium py-1 px-2.5" onclick="toggleEditarEstudiante()" style="font-size: 0.8rem;">
+                            <i class="bi bi-pencil-square"></i> Editar Datos / Carrera
+                        </button>
+                        <form action="{{ url_for('homologaciones.eliminar_estudiante_post', estudiante_id=solicitud.estudiante.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar permanentemente este estudiante y toda su carpeta de homologación? Esta acción es irreversible.');">
+                            <button type="submit" class="btn btn-xs btn-outline-danger btn-premium py-1 px-2.5" style="font-size: 0.8rem;">
+                                <i class="bi bi-trash-fill"></i> Eliminar Registro
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Formulario de Edición Inline -->
+                    <div id="editar-estudiante-panel" class="mt-3 p-3 bg-light rounded d-none" style="background-color: var(--bg-tertiary) !important; border: 1px solid var(--border-glass);">
+                        <h5 class="h6 mb-3 fw-bold text-primary"><i class="bi bi-person-gear me-1"></i>Editar Datos del Estudiante</h5>
+                        <form action="{{ url_for('homologaciones.editar_estudiante_post', estudiante_id=solicitud.estudiante.id) }}" method="POST" class="needs-validation" novalidate>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary fw-semibold mb-1" style="font-size: 0.75rem;">Nombres <span class="text-danger">*</span></label>
+                                    <input type="text" name="name" class="form-control form-premium py-1.5 text-sm" value="{{ solicitud.estudiante.name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary fw-semibold mb-1" style="font-size: 0.75rem;">Apellidos <span class="text-danger">*</span></label>
+                                    <input type="text" name="lastname" class="form-control form-premium py-1.5 text-sm" value="{{ solicitud.estudiante.lastname }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary fw-semibold mb-1" style="font-size: 0.75rem;">Correo Electrónico <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" class="form-control form-premium py-1.5 text-sm" value="{{ solicitud.estudiante.email }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary fw-semibold mb-1" style="font-size: 0.75rem;">Teléfono</label>
+                                    <input type="text" name="phone" class="form-control form-premium py-1.5 text-sm" value="{{ solicitud.estudiante.phone or '' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary fw-semibold mb-1" style="font-size: 0.75rem;">Carrera <span class="text-danger">*</span></label>
+                                    <select name="carrera_id" class="form-select form-premium py-1.5 text-sm" required>
+                                        {% for c in carreras %}
+                                            <option value="{{ c.id }}" {% if c.id == solicitud.estudiante.carrera_id %}selected{% endif %}>{{ c.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary fw-semibold mb-1" style="font-size: 0.75rem;">Ciclo Académico</label>
+                                    <select name="ciclo_id" class="form-select form-premium py-1.5 text-sm">
+                                        <option value="">Ninguno</option>
+                                        {% for c in ciclos %}
+                                            <option value="{{ c.id }}" {% if c.id == solicitud.estudiante.ciclo_id %}selected{% endif %}>{{ c.name }} ({{ c.code }}) {% if c.status == 'vigente' %}[Vigente]{% endif %}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12 d-flex justify-content-end gap-2 mt-3 pt-2 border-top" style="border-color: var(--border-glass) !important;">
+                                    <button type="button" class="btn btn-sm btn-premium btn-premium-secondary" onclick="toggleEditarEstudiante()">Cancelar</button>
+                                    <button type="submit" class="btn btn-sm btn-premium btn-premium-primary">Actualizar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- Cambiar Estado de Carpeta -->
+                <div class="glass-panel p-3" style="min-width: 250px;">
+                    <form action="{{ url_for('homologaciones.cambiar_estado', solicitud_id=solicitud.id) }}" method="POST">
+                        <label for="status" class="form-label fw-semibold text-secondary mb-1" style="font-size: 0.8rem;">Estado de Carpeta</label>
+                        <div class="d-flex gap-2">
+                            <select name="status" class="form-select form-premium py-1.5 text-sm" style="font-size: 0.85rem;">
+                                <option value="Pendiente Documentos" {% if solicitud.status == 'Pendiente Documentos' %}selected{% endif %}>Pendiente Docs</option>
+                                <option value="Documentación Incompleta" {% if solicitud.status == 'Documentación Incompleta' %}selected{% endif %}>Incompleta</option>
+                                <option value="Documentación Completa" {% if solicitud.status == 'Documentación Completa' %}selected{% endif %}>Completa</option>
+                                <option value="Sellado Secretaría" {% if solicitud.status == 'Sellado Secretaría' %}selected{% endif %}>Sellada</option>
+                                <option value="Entregado a Universidad" {% if solicitud.status == 'Entregado a Universidad' %}selected{% endif %}>Entregada</option>
+                                <option value="Matriculado" {% if solicitud.status == 'Matriculado' %}selected{% endif %}>Matriculado</option>
+                            </select>
+                            <button type="submit" class="btn btn-premium btn-premium-primary py-1 px-2.5" title="Guardar Estado">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <hr class="my-3" style="border-color: var(--border-glass);">
+            
+            <!-- Barra de Progreso Aprobados -->
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span class="text-secondary fw-semibold mb-1 d-block" style="font-size: 0.85rem;">Progreso de Documentación Obligatoria Aprobada</span>
+                    <div class="progress progress-premium">
+                        <div class="progress-bar progress-bar-premium" role="progressbar" style="width: {{ progreso }}%;" aria-valuenow="{{ progreso }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                    <span class="fs-4 fw-bold font-display text-primary">{{ progreso }}%</span>
+                </div>
+            </div>
+
+            <!-- Acceso Rápido del Estudiante & Enlace de WhatsApp -->
+            <div class="bg-light rounded p-3 mt-3 d-flex flex-wrap align-items-center justify-content-between gap-3" style="background-color: var(--bg-tertiary) !important; border: 1px solid var(--border-glass);">
+                <div>
+                    <span class="text-muted d-block" style="font-size: 0.75rem;">Enlace único de carga para el estudiante:</span>
+                    <code class="text-break" id="portal-link-text">{{ url_for('students.login_token', token=solicitud.estudiante.token, _external=True) }}</code>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary btn-premium" onclick="copyLink()">
+                        <i class="bi bi-copy"></i> Copiar Enlace
+                    </button>
+                    {% if whatsapp_link %}
+                    <a href="{{ whatsapp_link }}" target="_blank" class="btn btn-sm btn-success btn-premium d-flex align-items-center gap-1">
+                        <i class="bi bi-whatsapp"></i> Notificar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Listado de Documentos (Checklist) -->
+        <h3 class="h5 mb-3 font-display">Revisión de Requisitos</h3>
+        
+        <div class="d-flex flex-column gap-3">
+            {% for td in tipos_documentos %}
+                {% set doc = docs_subidos.get(td.id) %}
+                <div class="glass-panel p-3 mb-3 {% if doc and doc.status == 'Aprobado' %}border-success-subtle{% elif doc and doc.status == 'Observado' %}border-danger-subtle{% endif %}" style="transition: border-color 0.2s;">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <!-- Indicador de Estado del Requisito -->
+                            <div class="fs-4">
+                                {% if not doc or doc.status == 'Pendiente' %}
+                                    <i class="bi bi-dash-circle text-warning" title="Pendiente de Entrega"></i>
+                                {% elif doc.status == 'Aprobado' %}
+                                    <i class="bi bi-check-circle-fill text-success" title="Entregado y Validado"></i>
+                                {% elif doc.status == 'Observado' %}
+                                    <i class="bi bi-exclamation-circle-fill text-danger" title="Observado"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <h4 class="h6 mb-0 fw-bold">{{ td.name }} {% if td.required %}<span class="text-danger">*</span>{% endif %}</h4>
+                                <p class="text-muted mb-0" style="font-size: 0.8rem;">{{ td.description }}</p>
+                                
+                                <!-- Nota / Observación del Documento -->
+                                {% if doc and doc.notes %}
+                                    <div class="mt-1 text-danger fw-semibold" style="font-size: 0.8rem;">
+                                        <i class="bi bi-info-circle-fill me-1"></i> Nota: {{ doc.notes }}
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Si es Récord Académico y ya tiene archivo cargado -->
+                                {% if td.name == 'Récord Académico' and doc and doc.file_path %}
+                                    <div class="mt-2 text-secondary" style="font-size: 0.8rem;">
+                                        <i class="bi bi-file-earmark-pdf-fill text-primary"></i> Récord cargado: 
+                                        <a href="{{ url_for('static', filename='uploads/' ~ doc.file_path) }}" target="_blank" class="fw-semibold text-decoration-none">
+                                            {{ doc.filename }} (v{{ doc.version }})
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Badge de Estado en CRM -->
+                        <div>
+                            {% if not doc %}
+                                <span class="badge badge-premium badge-premium-warning">Pendiente</span>
+                            {% else %}
+                                <span class="badge badge-premium {% if doc.status == 'Aprobado' %}badge-premium-success{% elif doc.status == 'Observado' %}badge-premium-danger{% else %}badge-premium-info{% endif %}">
+                                    {% if doc.status == 'Aprobado' %}Entregado{% else %}{{ doc.status }}{% endif %}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Panel de Controles del Documento -->
+                    <div class="mt-3 pt-3 border-top" style="border-color: var(--border-glass) !important;">
+                        {% if td.name == 'Récord Académico' %}
+                            <!-- Cargador de Récord Académico (para el Admin) -->
+                            <form action="{{ url_for('homologaciones.subir_record_admin', solicitud_id=solicitud.id, tipo_id=td.id) }}" method="POST" enctype="multipart/form-data">
+                                <div class="d-flex flex-wrap align-items-center gap-3">
+                                    <div class="flex-grow-1">
+                                        <input type="file" name="file" class="form-control form-premium py-1" accept=".pdf, .png, .jpg, .jpeg" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-premium btn-premium-primary btn-sm py-1.5 px-3">
+                                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Subir Récord PDF
+                                    </button>
+                                </div>
+                            </form>
+                        {% else %}
+                            <!-- Control del Checklist Físico (Estado y Notas) -->
+                            <form action="{{ url_for('homologaciones.marcar_estado_documento', solicitud_id=solicitud.id, tipo_id=td.id) }}" method="POST">
+                                <div class="row g-2 align-items-center">
+                                    <!-- Selector de Estado -->
+                                    <div class="col-md-3">
+                                        <select name="status" class="form-select form-premium py-1 text-sm" style="font-size: 0.85rem;">
+                                            <option value="Pendiente" {% if not doc or doc.status == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                                            <option value="Aprobado" {% if doc and doc.status == 'Aprobado' %}selected{% endif %}>Entregado</option>
+                                            <option value="Observado" {% if doc and doc.status == 'Observado' %}selected{% endif %}>Observado</option>
+                                        </select>
+                                    </div>
+                                    <!-- Input de Notas (Falta de sello, etc.) -->
+                                    <div class="col-md-7">
+                                        <input type="text" 
+                                               name="notes" 
+                                               id="notes-field-{{ td.id }}"
+                                               class="form-control form-premium py-1 text-sm" 
+                                               style="font-size: 0.85rem;" 
+                                               placeholder="Nota / Observación (ej: Falta de sello)"
+                                               value="{{ doc.notes if doc and doc.notes else '' }}">
+                                    </div>
+                                    <!-- Botón Guardar -->
+                                    <div class="col-md-2 text-end">
+                                        <button type="submit" class="btn btn-premium btn-premium-secondary btn-sm py-1.5 px-3 w-100">
+                                            <i class="bi bi-save me-1"></i> Guardar
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Columna Lateral: Bitácora de Acciones y Notas Internas -->
+    <div class="col-lg-4">
+        <!-- Registrar Nota Interna -->
+        <div class="glass-panel p-4 mb-4">
+            <h3 class="h6 mb-3 font-display fw-bold"><i class="bi bi-journal-plus me-1 text-primary"></i> Agregar Nota Interna</h3>
+            <form action="{{ url_for('homologaciones.agregar_nota', solicitud_id=solicitud.id) }}" method="POST">
+                <textarea name="comment" rows="3" class="form-control form-premium mb-3" placeholder="Escribe un comentario que sólo el personal administrativo pueda ver..." required></textarea>
+                <button type="submit" class="btn btn-premium btn-premium-primary btn-sm w-100">
+                    <i class="bi bi-send-fill"></i> Guardar Nota
+                </button>
+            </form>
+        </div>
+
+        <!-- Timeline Historial -->
+        <div class="glass-card-premium p-4">
+            <h3 class="h6 mb-4 font-display fw-bold"><i class="bi bi-clock-history me-1 text-primary"></i> Timeline del Trámite</h3>
+            <div class="timeline-premium">
+                {% if solicitud.seguimientos %}
+                    {% for seg in solicitud.seguimientos|sort(attribute='created_at', reverse=true) %}
+                        <div class="timeline-item 
+                            {% if 'Aprobado' in seg.action or 'Matriculado' in seg.action %}timeline-item-success
+                            {% elif 'Observado' in seg.action or 'Rechazado' in seg.action %}timeline-item-danger
+                            {% elif 'Creada' in seg.action %}timeline-item-warning
+                            {% endif %}">
+                            <span class="timeline-date">{{ seg.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                            <h4 class="h6 mb-0 mt-1" style="font-size: 0.85rem; font-weight: 600;">{{ seg.action }}</h4>
+                            <p class="timeline-content mb-0 mt-1">{{ seg.details }}</p>
+                            {% if seg.user_id %}
+                                <small class="text-muted d-block mt-1" style="font-size: 0.7rem;"><i class="bi bi-person-fill"></i> Por: {{ seg.usuario.username }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-secondary text-center py-4 mb-0" style="font-size: 0.85rem;">No hay registros de seguimiento para esta solicitud.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleObservar(docId) {
+        const form = document.getElementById(`observar-form-${docId}`);
+        form.classList.toggle('d-none');
+    }
+    
+    function copyLink() {
+        const linkText = document.getElementById('portal-link-text').innerText;
+        navigator.clipboard.writeText(linkText).then(() => {
+            // Mostrar Toast de éxito
+            const toastEl = document.createElement('div');
+            toastEl.className = 'toast show align-items-center text-white bg-dark border-0 animate-fade-in position-fixed top-0 end-0 m-3';
+            toastEl.style.zIndex = '1100';
+            toastEl.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i> ¡Enlace copiado al portapapeles!
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(toastEl);
+            setTimeout(() => {
+                toastEl.remove();
+            }, 3000);
+        }).catch(err => {
+            alert('Error al copiar el enlace.');
+        });
+    }
+
+    function toggleEditarEstudiante() {
+        const panel = document.getElementById('editar-estudiante-panel');
+        if (panel.classList.contains('d-none')) {
+            panel.classList.remove('d-none');
+        } else {
+            panel.classList.add('d-none');
+        }
+    }
+</script>
+{% endblock %}

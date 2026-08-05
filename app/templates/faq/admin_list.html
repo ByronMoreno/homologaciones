@@ -1,0 +1,102 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Preguntas Frecuentes - HomologaSys{% endblock %}
+{% block page_title %}Administración de FAQs{% endblock %}
+{% block page_subtitle %}Modifica la base de conocimientos auto-servicio para mitigar preguntas repetitivas de estudiantes{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('faq.nueva') }}" class="btn btn-premium btn-premium-primary btn-sm">
+    <i class="bi bi-plus-circle-fill"></i> Nueva FAQ
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Columna Principal: Listado de FAQs -->
+    <div class="col-lg-8">
+        <div class="glass-card-premium p-4">
+            <h2 class="h5 mb-4 font-display fw-bold border-bottom pb-3" style="border-color: var(--border-glass) !important;">
+                <i class="bi bi-question-circle-fill me-1 text-primary"></i> Listado de Preguntas Frecuentes
+            </h2>
+            
+            {% if faqs %}
+                <div class="table-responsive">
+                    <table class="table align-middle" style="color: var(--text-primary);">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border-glass);">
+                                <th class="text-secondary fw-semibold font-display" style="font-size: 0.85rem; width: 45%;">Pregunta</th>
+                                <th class="text-secondary fw-semibold font-display" style="font-size: 0.85rem;">Categoría</th>
+                                <th class="text-secondary fw-semibold font-display text-center" style="font-size: 0.85rem;">Vistas</th>
+                                <th class="text-secondary fw-semibold font-display text-end" style="font-size: 0.85rem;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for faq in faqs %}
+                                <tr style="border-bottom: 1px solid var(--border-glass);">
+                                    <td>
+                                        <div class="fw-semibold">{{ faq.question }}</div>
+                                        <p class="text-muted mb-0 text-truncate" style="font-size: 0.8rem; max-width: 320px;">{{ faq.answer }}</p>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-premium badge-premium-info">{{ faq.categoria.name }}</span>
+                                    </td>
+                                    <td class="text-center text-secondary">
+                                        {{ faq.views_count }}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-2">
+                                            <a href="{{ url_for('faq.editar', faq_id=faq.id) }}" class="btn btn-premium btn-premium-secondary btn-sm p-1.5" title="Editar FAQ">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <form action="{{ url_for('faq.eliminar', faq_id=faq.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta frecuente?')">
+                                                <button type="submit" class="btn btn-premium btn-premium-danger btn-sm p-1.5" title="Eliminar FAQ">
+                                                    <i class="bi bi-trash3-fill"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-secondary text-center py-5 mb-0">No hay preguntas frecuentes creadas. Haz clic en "Nueva FAQ" para empezar.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Columna Lateral: Gestión de Categorías -->
+    <div class="col-lg-4">
+        <!-- Crear Categoría -->
+        <div class="glass-panel p-4 mb-4">
+            <h3 class="h6 mb-3 font-display fw-bold"><i class="bi bi-folder-plus me-1 text-primary"></i> Nueva Categoría</h3>
+            <form action="{{ url_for('faq.nueva_categoria') }}" method="POST">
+                <div class="mb-3">
+                    <input type="text" name="name" class="form-control form-premium py-1.5 text-sm" placeholder="Ej: Matrícula, Syllabus, Requisitos" required>
+                </div>
+                <button type="submit" class="btn btn-premium btn-premium-primary btn-sm w-100">
+                    <i class="bi bi-plus-lg"></i> Registrar Categoría
+                </button>
+            </form>
+        </div>
+
+        <!-- Listado Categorías -->
+        <div class="glass-card-premium p-4">
+            <h3 class="h6 mb-3 font-display fw-bold"><i class="bi bi-folder-fill me-1 text-primary"></i> Categorías Registradas</h3>
+            <ul class="list-group list-group-flush">
+                {% if categorias %}
+                    {% for cat in categorias %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-2.5 text-secondary" style="border-color: var(--border-glass) !important;">
+                            <span>{{ cat.name }}</span>
+                            <span class="badge badge-premium badge-premium-info">{{ cat.faqs|length }} FAQs</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item bg-transparent text-center text-muted px-0 py-3">No hay categorías registradas.</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

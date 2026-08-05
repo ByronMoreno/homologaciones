@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificado de no poseer terceras matrículas y sanciones</title>
+    <!-- Outfit & Inter Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Inter', Georgia, serif;
+            color: #1e293b;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cert-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            padding: 3.5rem 3rem;
+            border: 4px double #475569;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Encabezado del Certificado */
+        .cert-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 1.5rem;
+        }
+
+        .cert-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            color: #0f172a;
+            margin: 0 0 0.5rem 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .cert-header p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Contenido del Certificado */
+        .cert-date {
+            text-align: right;
+            font-size: 0.95rem;
+            margin-bottom: 2.5rem;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .cert-body {
+            font-size: 1rem;
+            line-height: 1.8;
+            text-align: justify;
+            color: #334155;
+        }
+
+        .cert-body p {
+            margin-bottom: 1.5rem;
+            text-indent: 2rem;
+        }
+
+        .student-details {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin: 2rem 0;
+            list-style: none;
+        }
+
+        .student-details li {
+            margin-bottom: 0.75rem;
+            font-size: 1.05rem;
+        }
+
+        .student-details li:last-child {
+            margin-bottom: 0;
+        }
+
+        .student-details strong {
+            color: #0f172a;
+            display: inline-block;
+            width: 250px;
+        }
+
+        /* Firma */
+        .cert-signature {
+            margin-top: 4.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .signature-line {
+            width: 250px;
+            border-top: 1px solid #475569;
+            margin-bottom: 0.75rem;
+        }
+
+        .signature-title {
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .signature-inst {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* Botón Flotante para Imprimir */
+        .print-btn-container {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 0.5rem;
+        }
+
+        .btn-print {
+            background-color: #6366f1;
+            color: #ffffff;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-print:hover {
+            background-color: #4f46e5;
+            transform: translateY(-1px);
+        }
+
+        .btn-back {
+            color: #475569;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .btn-back:hover {
+            color: #0f172a;
+        }
+
+        /* Pie de página de seguridad ficticio */
+        .security-footer {
+            margin-top: 3.5rem;
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        /* Estilos de Impresión */
+        @media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+            }
+
+            .cert-container {
+                box-shadow: none;
+                border: 4px double #000000;
+                padding: 3rem 2.5rem;
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .print-btn-container {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón de acciones -->
+    <div class="print-btn-container">
+        <a href="{{ url_for('students.dashboard') }}" class="btn-back">&larr; Volver al Portal</a>
+        <button onclick="window.print()" class="btn-print">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
+            </svg>
+            Imprimir Certificado
+        </button>
+    </div>
+
+    <!-- Contenedor del Certificado Oficial -->
+    <div class="cert-container">
+        <div class="cert-header">
+            <h1>Instituto Superior Tecnológico de Turismo y Patrimonio "Yavirac"</h1>
+            <p>Certificación de Matrículas y Sanciones Disciplinarias</p>
+        </div>
+
+        <div class="cert-date">
+            Quito, {{ fecha_actual }}
+        </div>
+
+        <div class="cert-body">
+            <p>
+                Por medio de la presente, el Instituto Superior Tecnológico de Turismo y Patrimonio "Yavirac", certifica que el estudiante:
+            </p>
+
+            <ul class="student-details">
+                <li><strong>Nombre Completo del Estudiante:</strong> {{ estudiante.fullname | upper }}</li>
+                <li><strong>Cédula de Identidad:</strong> {{ estudiante.cedula }}</li>
+                <li><strong>Carrera:</strong> {{ estudiante.carrera.name }}</li>
+            </ul>
+
+            <p>
+                Ha culminado sus estudios en la carrera de <strong>{{ estudiante.carrera.name }}</strong> en esta prestigiosa institución, sin haber incurrido en terceras matrículas ni presentar antecedentes de sanciones disciplinarias durante su trayectoria académica en nuestro instituto.
+            </p>
+
+            <p>
+                La presente certificación se expide a solicitud del interesado, a fin de que pueda presentarla en los fines que considere pertinentes.
+            </p>
+            
+            <p>
+                Sin otro particular, quedamos a disposición para cualquier consulta adicional.
+            </p>
+        </div>
+
+        <div class="cert-signature">
+            <div class="signature-line"></div>
+            <p class="signature-title">Secretaría General</p>
+            <p class="signature-inst">Instituto Superior Tecnológico de Turismo y Patrimonio "Yavirac"</p>
+        </div>
+
+        <div class="security-footer">
+            <span>Código de Verificación: {{ codigo_verif }}</span>
+            <span>Sistema HomologaSys &copy; 2026</span>
+        </div>
+    </div>
+</body>
+</html>

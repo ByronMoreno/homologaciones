@@ -1,0 +1,73 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ title }} - HomologaSys{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}Define la información y el estado de vigencia del ciclo académico{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-panel p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3" style="border-color: var(--border-glass) !important;">
+                <h3 class="h5 mb-0 font-display fw-bold text-primary">
+                    <i class="bi bi-calendar-check-fill me-2"></i>Formulario de Ciclo Académico
+                </h3>
+                <a href="{{ url_for('homologaciones.list_ciclos') }}" class="btn btn-premium btn-premium-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+            
+            <form action="{{ action_url }}" method="POST" class="needs-validation" novalidate>
+                <div class="row g-3">
+                    <!-- Código -->
+                    <div class="col-md-4">
+                        <label for="code" class="form-label text-secondary fw-semibold text-sm">Código de Ciclo <span class="text-danger">*</span></label>
+                        <input type="text" 
+                               name="code" 
+                               id="code" 
+                               class="form-control form-premium uppercase" 
+                               placeholder="Ej: 2026-1" 
+                               maxlength="20"
+                               required 
+                               value="{{ ciclo.code if ciclo else '' }}">
+                        <div class="invalid-feedback">Ingresa el código del ciclo.</div>
+                    </div>
+                    
+                    <!-- Nombre -->
+                    <div class="col-md-8">
+                        <label for="name" class="form-label text-secondary fw-semibold text-sm">Nombre Completo <span class="text-danger">*</span></label>
+                        <input type="text" 
+                               name="name" 
+                               id="name" 
+                               class="form-control form-premium" 
+                               placeholder="Ej: Periodo Académico 2026-1" 
+                               required 
+                               value="{{ ciclo.name if ciclo else '' }}">
+                        <div class="invalid-feedback">Ingresa el nombre descriptivo del ciclo.</div>
+                    </div>
+                    
+                    <!-- Estado -->
+                    <div class="col-md-6">
+                        <label for="status" class="form-label text-secondary fw-semibold text-sm">Estado de Vigencia</label>
+                        <select name="status" id="status" class="form-select form-premium" required>
+                            <option value="vigente" {% if ciclo and ciclo.status == 'vigente' %}selected{% endif %}>Vigente (Vinculará por defecto a estudiantes nuevos)</option>
+                            <option value="cerrado" {% if not ciclo or ciclo.status == 'cerrado' %}selected{% endif %}>Cerrado</option>
+                        </select>
+                        <div class="form-text text-muted mt-1" style="font-size: 0.75rem;">
+                            <i class="bi bi-info-circle me-1"></i> Si seleccionas **Vigente**, los demás ciclos se cambiarán a **Cerrado** automáticamente. Solo puede haber un ciclo vigente.
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de Acción -->
+                    <div class="col-12 d-flex justify-content-end gap-3 mt-4 pt-3 border-top" style="border-color: var(--border-glass) !important;">
+                        <a href="{{ url_for('homologaciones.list_ciclos') }}" class="btn btn-premium btn-premium-secondary py-2 px-4">Cancelar</a>
+                        <button type="submit" class="btn btn-premium btn-premium-primary py-2 px-4">
+                            <i class="bi bi-save2-fill me-1"></i> Guardar Ciclo
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

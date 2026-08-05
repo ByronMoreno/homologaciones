@@ -1,0 +1,163 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Dashboard - HomologaSys{% endblock %}
+{% block page_title %}Panel General de Homologaciones{% endblock %}
+{% block page_subtitle %}Monitorea y gestiona el avance de las carpetas de estudiantes{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('homologaciones.nuevo_estudiante') }}" class="btn btn-premium btn-premium-primary">
+    <i class="bi bi-person-plus-fill"></i>
+    <span>Nuevo Estudiante</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Estadísticas Generales -->
+<div class="row g-4 mb-4">
+    <!-- Total Estudiantes -->
+    <div class="col-6 col-lg-3">
+        <div class="glass-panel p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-secondary fw-medium" style="font-size: 0.85rem;">Total Estudiantes</span>
+                <span class="badge badge-premium badge-premium-info"><i class="bi bi-people-fill"></i></span>
+            </div>
+            <h3 class="display-6 fw-bold mb-0 text-primary">{{ total_estudiantes }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">Registrados en el sistema</p>
+        </div>
+    </div>
+    
+    <!-- Solicitudes Activas -->
+    <div class="col-6 col-lg-3">
+        <div class="glass-panel p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-secondary fw-medium" style="font-size: 0.85rem;">En Proceso</span>
+                <span class="badge badge-premium badge-premium-warning"><i class="bi bi-clock-history"></i></span>
+            </div>
+            <h3 class="display-6 fw-bold mb-0 text-primary">{{ solicitudes_activas }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">Trámites activos</p>
+        </div>
+    </div>
+
+    <!-- Carpetas Completas -->
+    <div class="col-6 col-lg-3">
+        <div class="glass-panel p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-secondary fw-medium" style="font-size: 0.85rem;">Por Revisar</span>
+                <span class="badge badge-premium badge-premium-success"><i class="bi bi-check-circle-fill"></i></span>
+            </div>
+            <h3 class="display-6 fw-bold mb-0 text-primary">{{ completadas + selladas }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">Documentación completa / sellada</p>
+        </div>
+    </div>
+
+    <!-- Matriculados -->
+    <div class="col-6 col-lg-3">
+        <div class="glass-panel p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-secondary fw-medium" style="font-size: 0.85rem;">Matriculados UNIB.E</span>
+                <span class="badge badge-premium badge-premium-info"><i class="bi bi-mortarboard-fill"></i></span>
+            </div>
+            <h3 class="display-6 fw-bold mb-0 text-primary">{{ matriculados }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">Homologación concluida</p>
+        </div>
+    </div>
+</div>
+
+<!-- Pre-registros pendientes -->
+{% if pending_students %}
+<div class="glass-panel p-4 mb-4 border-warning-subtle animate-fade-in" style="border-left: 4px solid var(--color-warning) !important;">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="h6 mb-0 font-display fw-bold text-warning">
+            <i class="bi bi-person-fill-exclamation me-1"></i> Pre-Registros Pendientes de Aprobación ({{ pending_students|length }})
+        </h3>
+        <span class="badge badge-premium badge-premium-warning">Acción Requerida</span>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 text-secondary" style="border-color: var(--border-glass) !important; font-size: 0.85rem;">
+            <thead>
+                <tr class="text-secondary fw-semibold">
+                    <th scope="col" class="py-2">Cédula</th>
+                    <th scope="col" class="py-2">Estudiante</th>
+                    <th scope="col" class="py-2">Correo / Teléfono</th>
+                    <th scope="col" class="py-2">Carrera</th>
+                    <th scope="col" class="py-2 text-end">Aprobación</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in pending_students %}
+                    <tr style="border-color: var(--border-glass) !important;">
+                        <td class="fw-bold text-white">{{ student.cedula }}</td>
+                        <td class="text-white">{{ student.lastname }}, {{ student.name }}</td>
+                        <td>
+                            <div>{{ student.email }}</div>
+                            {% if student.phone %}<small class="text-muted">{{ student.phone }}</small>{% endif %}
+                        </td>
+                        <td>{{ student.carrera.name }}</td>
+                        <td class="text-end">
+                            <form action="{{ url_for('homologaciones.aprobar_estudiante', estudiante_id=student.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-xs btn-success btn-premium py-1 px-3" style="font-size: 0.75rem;">
+                                    <i class="bi bi-check-lg me-1"></i> Aprobar Registro
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Filtros y Búsqueda -->
+<div class="glass-panel p-4 mb-4">
+    <form class="row g-3" method="GET" action="{{ url_for('homologaciones.dashboard') }}">
+        <!-- Buscador -->
+        <div class="col-md-7">
+            <div class="search-container">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" 
+                       name="search" 
+                       id="search-input"
+                       class="form-control form-premium search-input w-100" 
+                       placeholder="Buscar por cédula, nombre, apellido o código..."
+                       value="{{ search_query }}"
+                       hx-get="{{ url_for('homologaciones.dashboard') }}"
+                       hx-trigger="keyup changed delay:300ms"
+                       hx-target="#student-list-container"
+                       hx-push-url="true">
+            </div>
+        </div>
+        
+        <!-- Filtro Carrera -->
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                    <i class="bi bi-filter"></i>
+                </span>
+                <select name="carrera" 
+                        id="carrera-select" 
+                        class="form-select form-premium border-start-0 ps-0"
+                        hx-get="{{ url_for('homologaciones.dashboard') }}"
+                        hx-trigger="change"
+                        hx-target="#student-list-container"
+                        hx-push-url="true">
+                    <option value="">Todas las Carreras</option>
+                    {% for carrera in carreras %}
+                        <option value="{{ carrera.id }}" {% if carrera_id|string == carrera.id|string %}selected{% endif %}>
+                            {{ carrera.name }} ({{ carrera.code }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Contenedor Listado de Alumnos -->
+<div class="glass-card-premium p-4">
+    <div id="student-list-container" class="table-responsive">
+        {% include "admin/partials/student_list.html" %}
+    </div>
+</div>
+{% endblock %}

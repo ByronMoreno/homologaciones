@@ -1,0 +1,82 @@
+<table class="table align-middle mb-0" style="color: var(--text-primary);">
+    <thead>
+        <tr style="border-bottom: 2px solid var(--border-glass);">
+            <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Código</th>
+            <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Estudiante</th>
+            <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Carrera</th>
+            <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Estado</th>
+            <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Última Actualización</th>
+            <th class="text-secondary font-display fw-semibold py-3 text-end" style="font-size: 0.85rem;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if solicitudes %}
+            {% for sol in solicitudes %}
+                <tr style="border-bottom: 1px solid var(--border-glass); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--bg-tertiary)'" onmouseout="this.style.backgroundColor='transparent'">
+                    <td class="py-3">
+                        <span class="font-display fw-bold" style="font-size: 0.9rem;">{{ sol.code }}</span>
+                    </td>
+                    <td class="py-3">
+                        <div class="d-flex flex-column">
+                            <span class="fw-semibold">{{ sol.estudiante.fullname }}</span>
+                            <span class="text-muted" style="font-size: 0.8rem;">C.I. {{ sol.estudiante.cedula }}</span>
+                        </div>
+                    </td>
+                    <td class="py-3">
+                        <div class="d-flex flex-column">
+                            <span>{{ sol.estudiante.carrera.name }}</span>
+                            <span class="text-muted" style="font-size: 0.8rem;">{{ sol.estudiante.carrera.code }}</span>
+                        </div>
+                    </td>
+                    <td class="py-3">
+                        {% if sol.status == 'Pendiente Documentos' %}
+                            <span class="badge-premium badge-premium-warning">
+                                <i class="bi bi-file-earmark-arrow-up"></i> Pendiente Docs
+                            </span>
+                        {% elif sol.status == 'Documentación Incompleta' %}
+                            <span class="badge-premium badge-premium-danger">
+                                <i class="bi bi-exclamation-triangle"></i> Incompleta
+                            </span>
+                        {% elif sol.status == 'Documentación Completa' %}
+                            <span class="badge-premium badge-premium-info">
+                                <i class="bi bi-file-earmark-check"></i> Completa
+                            </span>
+                        {% elif sol.status == 'Sellado Secretaría' %}
+                            <span class="badge-premium badge-premium-success">
+                                <i class="bi bi-file-lock-fill"></i> Sellada
+                            </span>
+                        {% elif sol.status == 'Entregado a Universidad' %}
+                            <span class="badge-premium badge-premium-info">
+                                <i class="bi bi-send-fill"></i> Entregada
+                            </span>
+                        {% elif sol.status == 'Matriculado' %}
+                            <span class="badge-premium badge-premium-success">
+                                <i class="bi bi-mortarboard-fill"></i> Matriculado
+                            </span>
+                        {% else %}
+                            <span class="badge-premium badge-premium-info">{{ sol.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 text-secondary" style="font-size: 0.85rem;">
+                        {{ sol.updated_at.strftime('%d/%m/%Y %H:%M') }}
+                    </td>
+                    <td class="py-3 text-end">
+                        <a href="{{ url_for('homologaciones.expediente', solicitud_id=sol.id) }}" class="btn btn-premium btn-premium-secondary btn-sm py-1 px-3">
+                            <i class="bi bi-eye-fill me-1"></i> Ver Carpeta
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="6" class="text-center py-5 text-secondary">
+                    <div class="mb-3 text-muted display-6">
+                        <i class="bi bi-folder-x"></i>
+                    </div>
+                    <p class="mb-0 fw-semibold">No se encontraron expedientes con los filtros seleccionados.</p>
+                    <p class="text-muted" style="font-size: 0.85rem;">Registra un nuevo estudiante o cambia los filtros de búsqueda.</p>
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
