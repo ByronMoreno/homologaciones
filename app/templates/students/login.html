@@ -21,7 +21,7 @@
         <!-- Formulario -->
         <div class="p-4 p-md-5">
             <div class="alert alert-info py-2 px-3 mb-4" style="background-color: var(--color-info-bg); border-color: rgba(6, 182, 212, 0.2); color: var(--color-info); font-size: 0.8rem;">
-                <i class="bi bi-info-circle-fill me-1"></i> Para ingresar, tu expediente ya debe haber sido creado en secretaría.
+                <i class="bi bi-info-circle-fill me-1"></i> Para ingresar, primero debes realizar tu <strong>Pre-registro</strong>. Una vez que Secretaría valide y active tu cuenta, podrás ingresar con tu cédula para consultar y subir tu documentación.
             </div>
 
             <form action="{{ url_for('students.login') }}" method="POST" class="d-flex flex-column gap-4" onsubmit="return validarCedulaInput()">

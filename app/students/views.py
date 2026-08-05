@@ -109,6 +109,7 @@ def registro():
                 status='Pendiente Documentos'
             )
             db.session.add(solicitud)
+            db.session.flush()
             
             # Registrar bitácora
             seguimiento = Seguimiento(
