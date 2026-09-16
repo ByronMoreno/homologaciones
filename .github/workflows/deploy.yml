@@ -90,6 +90,7 @@ jobs:
             docker network rm homologaciones_homologaciones-net || true
             
             echo "🔄 Actualizando stack en Docker Swarm"
-            . .env && docker stack deploy -c stack.yml homologaciones
+            . .env && docker stack deploy --with-registry-auth --resolve-image always -c stack.yml homologaciones
+            docker service update --force --image ghcr.io/byronmoreno/homologaciones:latest homologaciones_web
             
             echo "✅ Despliegue completado con éxito"
