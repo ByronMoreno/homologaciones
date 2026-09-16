@@ -26,10 +26,10 @@
             min-height: 100vh;
         }
 
-        /* Barra de acciones flotante para pantalla */
+        /* Barra de acciones superior para pantalla */
         .print-btn-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 210mm;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -41,12 +41,12 @@
             color: #1e293b;
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
             background: #ffffff;
-            padding: 0.6rem 1.2rem;
+            padding: 0.6rem 1.1rem;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             transition: all 0.2s;
@@ -58,14 +58,44 @@
             transform: translateY(-1px);
         }
 
+        .print-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-docx {
+            background-color: #107c41; /* Microsoft Word green */
+            color: #ffffff;
+            text-decoration: none;
+            border: none;
+            padding: 0.65rem 1.3rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 124, 65, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-docx:hover {
+            background-color: #0b5a2f;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(16, 124, 65, 0.35);
+        }
+
         .btn-print {
             background-color: #0284c7;
             color: #ffffff;
             border: none;
-            padding: 0.65rem 1.6rem;
+            padding: 0.65rem 1.3rem;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
             display: inline-flex;
@@ -80,28 +110,45 @@
             box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
         }
 
-        /* Hoja de Certificado Formato A4 / Letter */
+        /* Hoja de Certificado Formato A4 Exacto (210mm x 297mm) */
         .cert-sheet {
-            background-color: #ffffff;
-            background-image: url("{{ url_for('static', filename='img/hoja_membretada_yavirac.png') }}");
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            background-position: center top;
-            width: 800px;
-            min-height: 1130px;
-            padding: 160px 75px 65px 75px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             position: relative;
+            background-color: #ffffff;
+            width: 210mm;
+            height: 297mm;
+            max-height: 297mm;
+            min-height: 297mm;
+            box-sizing: border-box;
+            padding: 42mm 28mm 18mm 28mm;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            margin: 0 auto;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
+        /* Imagen de Fondo / Marca de Agua Yavirac como elemento DOM para impresión 100% garantizada */
+        .cert-watermark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 210mm;
+            height: 297mm;
+            object-fit: fill;
+            z-index: 0;
+            pointer-events: none;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
         /* Contenido del Documento */
         .doc-content {
+            position: relative;
+            z-index: 1;
             flex-grow: 1;
-            font-size: 12.5pt;
-            line-height: 1.65;
+            font-size: 12pt;
+            line-height: 1.48;
             color: #000000;
         }
 
@@ -110,32 +157,33 @@
             font-weight: bold;
             text-decoration: underline;
             font-size: 14pt;
-            margin-top: 15px;
-            margin-bottom: 35px;
+            margin-top: 10px;
+            margin-bottom: 22px;
             letter-spacing: 0.5px;
         }
 
         .doc-date {
             text-align: right;
             font-size: 12pt;
-            margin-bottom: 35px;
+            margin-bottom: 22px;
         }
 
         .doc-paragraph {
             text-align: justify;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
             text-justify: inter-word;
+            line-height: 1.48;
         }
 
         .doc-student-info {
-            margin: 25px 0;
-            padding-left: 5px;
-            line-height: 1.8;
+            margin: 16px 0;
+            padding-left: 0;
+            line-height: 1.55;
             font-size: 12pt;
         }
 
         .doc-student-info div {
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .doc-student-info strong {
@@ -143,13 +191,13 @@
         }
 
         .doc-signature-block {
-            margin-top: 60px;
+            margin-top: 32px;
             font-size: 12pt;
-            line-height: 1.4;
+            line-height: 1.35;
         }
 
         .doc-signature-block .firmante {
-            margin-top: 70px;
+            margin-top: 55px; /* Espacio exacto para firma manuscrita y sello */
             font-weight: normal;
         }
 
@@ -163,27 +211,33 @@
 
         /* Pie de verificación institucional */
         .doc-footer-security {
+            position: relative;
+            z-index: 1;
             font-family: 'Inter', sans-serif;
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #64748b;
             border-top: 1px dashed #cbd5e1;
-            padding-top: 8px;
+            padding-top: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        /* Estilos de Impresión / Guardar como PDF */
+        /* Reglas estrictas de Impresión para forzar 1 SOLA HOJA y Marca de Agua */
         @page {
             size: A4 portrait;
             margin: 0;
         }
 
         @media print {
-            body {
-                background-color: #ffffff !important;
-                padding: 0 !important;
+            html, body {
+                width: 210mm !important;
+                height: 297mm !important;
+                max-height: 297mm !important;
                 margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                overflow: hidden !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -193,19 +247,29 @@
             }
 
             .cert-sheet {
-                width: 100% !important;
-                max-width: 100% !important;
+                width: 210mm !important;
                 height: 297mm !important;
+                max-height: 297mm !important;
                 min-height: 297mm !important;
-                padding: 48mm 25mm 20mm 25mm !important;
+                padding: 42mm 28mm 18mm 28mm !important;
                 box-shadow: none !important;
                 border: none !important;
                 margin: 0 !important;
+                overflow: hidden !important;
                 page-break-after: avoid !important;
                 page-break-inside: avoid !important;
-                background-image: url("{{ url_for('static', filename='img/hoja_membretada_yavirac.png') }}") !important;
-                background-size: 100% 100% !important;
-                background-repeat: no-repeat !important;
+                page-break-before: avoid !important;
+            }
+
+            .cert-watermark {
+                display: block !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                object-fit: fill !important;
+                z-index: 0 !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -227,16 +291,30 @@
             </svg>
             Volver al Portal
         </a>
-        <button onclick="window.print()" class="btn-print">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
-            </svg>
-            Descargar / Imprimir Certificado
-        </button>
+        <div class="print-actions">
+            <!-- Descargar en Word editable pre-llenado -->
+            <a href="{{ url_for('students.descargar_certificado_docx') }}" class="btn-docx">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
+                    <path d="M5.485 6.879l1.036 4.332h1.468l1.055-4.332h-1.12l-.568 2.85h-.028l-.65-2.85zm3.642 0h-1.07l-.64 2.85h-.028l-.578-2.85H5.7l1.046 4.332h1.46z"/>
+                </svg>
+                Descargar en Word (.docx)
+            </a>
+            <!-- Imprimir o Guardar en PDF directamente -->
+            <button onclick="window.print()" class="btn-print">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
+                </svg>
+                Imprimir / Guardar PDF
+            </button>
+        </div>
     </div>
 
-    <!-- Hoja Membretada Oficial Yavirac -->
+    <!-- Hoja Membretada Oficial Yavirac (A4 Estricto en 1 Sola Hoja) -->
     <div class="cert-sheet">
+        <!-- Marca de agua oficial como elemento de imagen para garantizar impresión en todo navegador -->
+        <img class="cert-watermark" src="{{ url_for('static', filename='img/hoja_membretada_yavirac.png') }}" alt="Membrete Yavirac">
+
         <div class="doc-content">
             <div class="doc-title">
                 Matrículas y Sanciones
