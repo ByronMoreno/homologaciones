@@ -13,52 +13,76 @@
 
 {% block content %}
 <!-- Estadísticas Generales -->
-<div class="row g-4 mb-4">
+<div class="row g-3 mb-4">
     <!-- Total Estudiantes -->
-    <div class="col-6 col-lg-3">
-        <div class="glass-panel p-4 h-100">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="glass-panel p-3 h-100">
             <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-secondary fw-medium" style="font-size: 0.85rem;">Total Estudiantes</span>
+                <span class="text-secondary fw-medium text-truncate" style="font-size: 0.8rem;">Estudiantes</span>
                 <span class="badge badge-premium badge-premium-info"><i class="bi bi-people-fill"></i></span>
             </div>
-            <h3 class="display-6 fw-bold mb-0 text-primary">{{ total_estudiantes }}</h3>
-            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">Registrados en el sistema</p>
+            <h3 class="h2 fw-bold mb-0 text-primary">{{ total_estudiantes }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.72rem;">Registrados</p>
         </div>
     </div>
     
     <!-- Solicitudes Activas -->
-    <div class="col-6 col-lg-3">
-        <div class="glass-panel p-4 h-100">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="glass-panel p-3 h-100">
             <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-secondary fw-medium" style="font-size: 0.85rem;">En Proceso</span>
+                <span class="text-secondary fw-medium text-truncate" style="font-size: 0.8rem;">En Proceso</span>
                 <span class="badge badge-premium badge-premium-warning"><i class="bi bi-clock-history"></i></span>
             </div>
-            <h3 class="display-6 fw-bold mb-0 text-primary">{{ solicitudes_activas }}</h3>
-            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">Trámites activos</p>
+            <h3 class="h2 fw-bold mb-0 text-primary">{{ solicitudes_activas }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.72rem;">Trámites activos</p>
+        </div>
+    </div>
+
+    <!-- Récords Cargados (OK) -->
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="glass-panel p-3 h-100" style="border-left: 3px solid #10b981 !important;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-secondary fw-medium text-truncate" style="font-size: 0.8rem;">Récords OK</span>
+                <span class="badge badge-premium badge-premium-success"><i class="bi bi-file-earmark-check-fill"></i></span>
+            </div>
+            <h3 class="h2 fw-bold mb-0 text-success">{{ records_cargados }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.72rem;">Listos / Cargados</p>
+        </div>
+    </div>
+
+    <!-- Récords Faltantes -->
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="glass-panel p-3 h-100" style="border-left: 3px solid #ef4444 !important;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-secondary fw-medium text-truncate" style="font-size: 0.8rem;">Falta Récord</span>
+                <span class="badge badge-premium badge-premium-danger"><i class="bi bi-file-earmark-x-fill"></i></span>
+            </div>
+            <h3 class="h2 fw-bold mb-0 text-danger">{{ records_faltantes }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.72rem;">Pendientes secretaría</p>
         </div>
     </div>
 
     <!-- Carpetas Completas -->
-    <div class="col-6 col-lg-3">
-        <div class="glass-panel p-4 h-100">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="glass-panel p-3 h-100">
             <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-secondary fw-medium" style="font-size: 0.85rem;">Por Revisar</span>
-                <span class="badge badge-premium badge-premium-success"><i class="bi bi-check-circle-fill"></i></span>
+                <span class="text-secondary fw-medium text-truncate" style="font-size: 0.8rem;">Por Revisar</span>
+                <span class="badge badge-premium badge-premium-info"><i class="bi bi-check-circle-fill"></i></span>
             </div>
-            <h3 class="display-6 fw-bold mb-0 text-primary">{{ completadas + selladas }}</h3>
-            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">Documentación completa / sellada</p>
+            <h3 class="h2 fw-bold mb-0 text-primary">{{ completadas + selladas }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.72rem;">Completas / selladas</p>
         </div>
     </div>
 
     <!-- Matriculados -->
-    <div class="col-6 col-lg-3">
-        <div class="glass-panel p-4 h-100">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="glass-panel p-3 h-100">
             <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-secondary fw-medium" style="font-size: 0.85rem;">Matriculados UNIB.E</span>
+                <span class="text-secondary fw-medium text-truncate" style="font-size: 0.8rem;">Matriculados</span>
                 <span class="badge badge-premium badge-premium-info"><i class="bi bi-mortarboard-fill"></i></span>
             </div>
-            <h3 class="display-6 fw-bold mb-0 text-primary">{{ matriculados }}</h3>
-            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">Homologación concluida</p>
+            <h3 class="h2 fw-bold mb-0 text-primary">{{ matriculados }}</h3>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.72rem;">UNIB.E concluidos</p>
         </div>
     </div>
 </div>
@@ -113,7 +137,7 @@
 <div class="glass-panel p-4 mb-4">
     <form class="row g-3" method="GET" action="{{ url_for('homologaciones.dashboard') }}">
         <!-- Buscador -->
-        <div class="col-md-7">
+        <div class="col-md-5">
             <div class="search-container">
                 <i class="bi bi-search search-icon"></i>
                 <input type="text" 
@@ -125,12 +149,13 @@
                        hx-get="{{ url_for('homologaciones.dashboard') }}"
                        hx-trigger="keyup changed delay:300ms"
                        hx-target="#student-list-container"
+                       hx-include="#carrera-select, #record-select"
                        hx-push-url="true">
             </div>
         </div>
         
         <!-- Filtro Carrera -->
-        <div class="col-md-5">
+        <div class="col-md-4">
             <div class="input-group">
                 <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
                     <i class="bi bi-filter"></i>
@@ -141,6 +166,7 @@
                         hx-get="{{ url_for('homologaciones.dashboard') }}"
                         hx-trigger="change"
                         hx-target="#student-list-container"
+                        hx-include="#search-input, #record-select"
                         hx-push-url="true">
                     <option value="">Todas las Carreras</option>
                     {% for carrera in carreras %}
@@ -148,6 +174,27 @@
                             {{ carrera.name }} ({{ carrera.code }})
                         </option>
                     {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Filtro Récord Académico -->
+        <div class="col-md-3">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: var(--border-glass);">
+                    <i class="bi bi-file-earmark-medical"></i>
+                </span>
+                <select name="record" 
+                        id="record-select" 
+                        class="form-select form-premium border-start-0 ps-0"
+                        hx-get="{{ url_for('homologaciones.dashboard') }}"
+                        hx-trigger="change"
+                        hx-target="#student-list-container"
+                        hx-include="#search-input, #carrera-select"
+                        hx-push-url="true">
+                    <option value="">Todos los Récords</option>
+                    <option value="cargado" {% if filtro_record == 'cargado' %}selected{% endif %}>Récord OK (Cargados)</option>
+                    <option value="falta" {% if filtro_record == 'falta' %}selected{% endif %}>Falta Récord (Pendientes)</option>
                 </select>
             </div>
         </div>

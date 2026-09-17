@@ -54,6 +54,7 @@ def exportar_csv():
         'Apellidos', 
         'Carrera', 
         'Estado Actual', 
+        'Récord Académico',
         'Fecha Registro', 
         'Última Modificación'
     ])
@@ -69,6 +70,7 @@ def exportar_csv():
             sol.estudiante.lastname,
             sol.estudiante.carrera.name,
             sol.status,
+            'Récord OK' if sol.record_cargado else 'Falta',
             sol.created_at.strftime('%d/%m/%Y %H:%M'),
             sol.updated_at.strftime('%d/%m/%Y %H:%M')
         ])

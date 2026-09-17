@@ -35,4 +35,7 @@ instance/
 .pytest_cache/
 .coverage
 htmlcov/
-.tox/
+# Uploads and temporary records
+records/
+uploads/
+app/static/uploads/

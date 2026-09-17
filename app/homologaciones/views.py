@@ -31,6 +31,13 @@ def dashboard():
     # Parámetros de búsqueda y filtros
     search_query = request.args.get('search', '').strip()
     carrera_id = request.args.get('carrera', '')
+    filtro_record = request.args.get('record', '')
+    
+    # Identificar el tipo de documento Récord Académico
+    tipo_record = TipoDocumento.query.filter(
+        or_(TipoDocumento.name.ilike('%record%'), TipoDocumento.name.ilike('%récord%'))
+    ).first()
+    tipo_record_id = tipo_record.id if tipo_record else None
     
     # Query base para solicitudes
     query = Solicitud.query.join(Estudiante)
@@ -48,10 +55,40 @@ def dashboard():
     if carrera_id:
         query = query.filter(Estudiante.carrera_id == int(carrera_id))
         
+    if filtro_record == 'cargado' and tipo_record_id:
+        subq = db.session.query(Documento.solicitud_id).filter(
+            Documento.tipo_documento_id == tipo_record_id,
+            Documento.file_path.isnot(None),
+            Documento.file_path != ''
+        ).subquery()
+        query = query.filter(Solicitud.id.in_(subq))
+    elif filtro_record == 'falta' and tipo_record_id:
+        subq = db.session.query(Documento.solicitud_id).filter(
+            Documento.tipo_documento_id == tipo_record_id,
+            Documento.file_path.isnot(None),
+            Documento.file_path != ''
+        ).subquery()
+        query = query.filter(~Solicitud.id.in_(subq))
+        
     solicitudes = query.order_by(Solicitud.updated_at.desc()).all()
+    
+    # Conjunto de IDs de solicitudes que ya tienen el Récord Académico subido
+    if tipo_record_id:
+        docs_con_record = Documento.query.filter(
+            Documento.tipo_documento_id == tipo_record_id,
+            Documento.file_path.isnot(None),
+            Documento.file_path != ''
+        ).all()
+        record_subidos_ids = {d.solicitud_id for d in docs_con_record}
+    else:
+        record_subidos_ids = set()
     
     # Estadísticas para el dashboard
     total_estudiantes = Estudiante.query.filter_by(approved=True).count()
+    total_solicitudes = Solicitud.query.count()
+    records_cargados = len(record_subidos_ids)
+    records_faltantes = max(0, total_solicitudes - records_cargados)
+    
     solicitudes_activas = Solicitud.query.filter(Solicitud.status != 'Matriculado').count()
     pendientes_docs = Solicitud.query.filter(Solicitud.status == 'Pendiente Documentos').count()
     completadas = Solicitud.query.filter(Solicitud.status == 'Documentación Completa').count()
@@ -63,7 +100,7 @@ def dashboard():
     
     # Si la petición es de HTMX, retornar sólo la tabla parcial
     if request.headers.get('HX-Request'):
-        return render_template('admin/partials/student_list.html', solicitudes=solicitudes)
+        return render_template('admin/partials/student_list.html', solicitudes=solicitudes, record_subidos_ids=record_subidos_ids)
         
     return render_template(
         'admin/dashboard.html',
@@ -71,7 +108,12 @@ def dashboard():
         carreras=carreras,
         search_query=search_query,
         carrera_id=carrera_id,
+        filtro_record=filtro_record,
+        record_subidos_ids=record_subidos_ids,
         total_estudiantes=total_estudiantes,
+        total_solicitudes=total_solicitudes,
+        records_cargados=records_cargados,
+        records_faltantes=records_faltantes,
         solicitudes_activas=solicitudes_activas,
         pendientes_docs=pendientes_docs,
         completadas=completadas,

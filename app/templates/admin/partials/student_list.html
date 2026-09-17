@@ -5,6 +5,7 @@
             <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Estudiante</th>
             <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Carrera</th>
             <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Estado</th>
+            <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Récord Académico</th>
             <th class="text-secondary font-display fw-semibold py-3" style="font-size: 0.85rem;">Última Actualización</th>
             <th class="text-secondary font-display fw-semibold py-3 text-end" style="font-size: 0.85rem;">Acciones</th>
         </tr>
@@ -57,6 +58,17 @@
                             <span class="badge-premium badge-premium-info">{{ sol.status }}</span>
                         {% endif %}
                     </td>
+                    <td class="py-3">
+                        {% if (record_subidos_ids and sol.id in record_subidos_ids) or sol.record_cargado %}
+                            <span class="badge-premium badge-premium-success">
+                                <i class="bi bi-check-circle-fill"></i> Récord OK
+                            </span>
+                        {% else %}
+                            <span class="badge-premium badge-premium-danger">
+                                <i class="bi bi-exclamation-circle-fill"></i> Falta
+                            </span>
+                        {% endif %}
+                    </td>
                     <td class="py-3 text-secondary" style="font-size: 0.85rem;">
                         {{ sol.updated_at.strftime('%d/%m/%Y %H:%M') }}
                     </td>
@@ -69,7 +81,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td colspan="6" class="text-center py-5 text-secondary">
+                <td colspan="7" class="text-center py-5 text-secondary">
                     <div class="mb-3 text-muted display-6">
                         <i class="bi bi-folder-x"></i>
                     </div>

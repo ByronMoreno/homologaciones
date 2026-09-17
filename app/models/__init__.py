@@ -125,6 +125,20 @@ class Solicitud(db.Model):
     seguimientos = db.relationship('Seguimiento', backref='solicitud', cascade="all, delete-orphan", lazy=True)
     observaciones = db.relationship('Observacion', backref='solicitud', cascade="all, delete-orphan", lazy=True)
 
+    @property
+    def record_documento(self):
+        """Retorna el Documento de Récord Académico si existe en la solicitud."""
+        for doc in self.documentos:
+            if doc.tipo_documento and ('record' in doc.tipo_documento.name.lower() or 'récord' in doc.tipo_documento.name.lower()):
+                return doc
+        return None
+
+    @property
+    def record_cargado(self) -> bool:
+        """Indica si el Récord Académico ya fue subido con archivo por secretaría."""
+        doc = self.record_documento
+        return bool(doc and doc.file_path and doc.file_path.strip())
+
     def __repr__(self) -> str:
         return f"<Solicitud {self.code} - Estado: {self.status}>"
 
