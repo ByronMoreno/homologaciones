@@ -5,6 +5,31 @@
 {% block page_subtitle %}Monitorea y gestiona el avance de las carpetas de estudiantes{% endblock %}
 
 {% block header_actions %}
+<div class="dropdown">
+    <button class="btn btn-outline-secondary btn-premium dropdown-toggle btn-sm py-2 px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-cloud-arrow-down-fill me-1"></i> Exportar
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background: var(--bg-card); border-color: var(--border-glass);">
+        <li>
+            <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="{{ url_for('reports.exportar_csv') }}">
+                <i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>
+                <div>
+                    <div class="fw-semibold" style="font-size: 0.85rem;">Excel (CSV)</div>
+                    <small class="text-muted" style="font-size: 0.72rem;">Con teléfonos y correos</small>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="{{ url_for('reports.exportar_pdf') }}">
+                <i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>
+                <div>
+                    <div class="fw-semibold" style="font-size: 0.85rem;">Reporte PDF</div>
+                    <small class="text-muted" style="font-size: 0.72rem;">Formato horizontal ejecutivo</small>
+                </div>
+            </a>
+        </li>
+    </ul>
+</div>
 <a href="{{ url_for('homologaciones.nuevo_estudiante') }}" class="btn btn-premium btn-premium-primary">
     <i class="bi bi-person-plus-fill"></i>
     <span>Nuevo Estudiante</span>

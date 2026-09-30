@@ -18,9 +18,20 @@
                         <span class="font-display fw-bold" style="font-size: 0.9rem;">{{ sol.code }}</span>
                     </td>
                     <td class="py-3">
-                        <div class="d-flex flex-column">
+                        <div class="d-flex flex-column gap-0.5">
                             <span class="fw-semibold">{{ sol.estudiante.fullname }}</span>
-                            <span class="text-muted" style="font-size: 0.8rem;">C.I. {{ sol.estudiante.cedula }}</span>
+                            <span class="text-muted" style="font-size: 0.78rem;">
+                                C.I. {{ sol.estudiante.cedula }}
+                                {% if sol.estudiante.phone %}
+                                    <span class="mx-1">&bull;</span>
+                                    <i class="bi bi-telephone text-secondary"></i> {{ sol.estudiante.phone }}
+                                {% endif %}
+                            </span>
+                            {% if sol.estudiante.email %}
+                                <span class="text-secondary text-truncate" style="font-size: 0.75rem; max-width: 210px;" title="{{ sol.estudiante.email }}">
+                                    <i class="bi bi-envelope text-secondary"></i> {{ sol.estudiante.email }}
+                                </span>
+                            {% endif %}
                         </div>
                     </td>
                     <td class="py-3">

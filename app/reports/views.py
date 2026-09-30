@@ -52,7 +52,10 @@ def exportar_csv():
         'Cédula', 
         'Nombres', 
         'Apellidos', 
+        'Teléfono / Celular',
+        'Correo Electrónico',
         'Carrera', 
+        'Ciclo Académico',
         'Estado Actual', 
         'Récord Académico',
         'Fecha Registro', 
@@ -63,16 +66,21 @@ def exportar_csv():
     solicitudes = Solicitud.query.join(Estudiante).order_by(Solicitud.created_at.desc()).all()
     
     for sol in solicitudes:
+        carrera_nom = sol.estudiante.carrera.name if (sol.estudiante and sol.estudiante.carrera) else 'N/A'
+        ciclo_nom = sol.estudiante.ciclo.name if (sol.estudiante and sol.estudiante.ciclo) else 'N/A'
         writer.writerow([
             sol.code,
-            sol.estudiante.cedula,
-            sol.estudiante.name,
-            sol.estudiante.lastname,
-            sol.estudiante.carrera.name,
+            sol.estudiante.cedula if sol.estudiante else '',
+            sol.estudiante.name if sol.estudiante else '',
+            sol.estudiante.lastname if sol.estudiante else '',
+            sol.estudiante.phone or 'Sin teléfono' if sol.estudiante else '',
+            sol.estudiante.email or 'Sin correo' if sol.estudiante else '',
+            carrera_nom,
+            ciclo_nom,
             sol.status,
             'Récord OK' if sol.record_cargado else 'Falta',
-            sol.created_at.strftime('%d/%m/%Y %H:%M'),
-            sol.updated_at.strftime('%d/%m/%Y %H:%M')
+            sol.created_at.strftime('%d/%m/%Y %H:%M') if sol.created_at else '',
+            sol.updated_at.strftime('%d/%m/%Y %H:%M') if sol.updated_at else ''
         ])
         
     response = make_response(output.getvalue())
@@ -83,7 +91,7 @@ def exportar_csv():
 @reports_bp.route('/exportar/pdf')
 @login_required
 def exportar_pdf():
-    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.pagesizes import letter, landscape
     from reportlab.lib import colors
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -96,9 +104,16 @@ def exportar_pdf():
     
     solicitudes = Solicitud.query.join(Estudiante).order_by(Solicitud.created_at.desc()).all()
     
-    # 2. Generar PDF
+    # 2. Generar PDF en orientación horizontal (landscape) para albergar todas las columnas
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+    doc = SimpleDocTemplate(
+        buffer, 
+        pagesize=landscape(letter), 
+        rightMargin=28, 
+        leftMargin=28, 
+        topMargin=28, 
+        bottomMargin=28
+    )
     story = []
     
     styles = getSampleStyleSheet()
@@ -106,26 +121,26 @@ def exportar_pdf():
     title_style = ParagraphStyle(
         'DocTitle',
         parent=styles['Heading1'],
-        fontSize=18,
-        leading=22,
+        fontSize=15,
+        leading=19,
         textColor=colors.HexColor('#0f172a'),
-        spaceAfter=4
+        spaceAfter=3
     )
     
     subtitle_style = ParagraphStyle(
         'DocSubtitle',
         parent=styles['Normal'],
-        fontSize=9,
-        leading=13,
+        fontSize=8.5,
+        leading=12,
         textColor=colors.HexColor('#475569'),
-        spaceAfter=15
+        spaceAfter=12
     )
     
     header_style = ParagraphStyle(
         'TableHeader',
         parent=styles['Normal'],
-        fontSize=8,
-        leading=10,
+        fontSize=7.5,
+        leading=9.5,
         textColor=colors.white,
         fontName='Helvetica-Bold'
     )
@@ -133,8 +148,8 @@ def exportar_pdf():
     cell_style = ParagraphStyle(
         'TableCell',
         parent=styles['Normal'],
-        fontSize=8,
-        leading=10,
+        fontSize=7.5,
+        leading=9.5,
         textColor=colors.HexColor('#1e293b')
     )
     
@@ -146,9 +161,9 @@ def exportar_pdf():
 
     story.append(Paragraph("<b>Portal de Gestión y Homologación - Yavirac - UNIB.E</b>", title_style))
     story.append(Paragraph("Reporte Ejecutivo de Expedientes de Homologación", subtitle_style))
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     
-    # Summary Metrics Cards
+    # Summary Metrics Cards (Ancho imprimible: 792 - 56 = 736 pt)
     metric_data = [
         [
             Paragraph("<b>Total Estudiantes</b>", cell_style),
@@ -157,60 +172,77 @@ def exportar_pdf():
             Paragraph("<b>Matriculados UNIB.E</b>", cell_style)
         ],
         [
-            Paragraph(f"<font size=13><b>{total_estudiantes}</b></font>", bold_cell_style),
-            Paragraph(f"<font size=13 color='#e11d48'><b>{por_revisar}</b></font>", bold_cell_style),
-            Paragraph(f"<font size=13 color='#ea580c'><b>{en_proceso}</b></font>", bold_cell_style),
-            Paragraph(f"<font size=13 color='#16a34a'><b>{matriculados}</b></font>", bold_cell_style)
+            Paragraph(f"<font size=12><b>{total_estudiantes}</b></font>", bold_cell_style),
+            Paragraph(f"<font size=12 color='#e11d48'><b>{por_revisar}</b></font>", bold_cell_style),
+            Paragraph(f"<font size=12 color='#ea580c'><b>{en_proceso}</b></font>", bold_cell_style),
+            Paragraph(f"<font size=12 color='#16a34a'><b>{matriculados}</b></font>", bold_cell_style)
         ]
     ]
     
-    metric_table = Table(metric_data, colWidths=[135, 135, 135, 135])
+    metric_table = Table(metric_data, colWidths=[184, 184, 184, 184])
     metric_table.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f8fafc')),
         ('ALIGN', (0,0), (-1,-1), 'CENTER'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-        ('TOPPADDING', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
         ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#e2e8f0')),
         ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#e2e8f0')),
     ]))
     
     story.append(metric_table)
-    story.append(Spacer(1, 20))
+    story.append(Spacer(1, 14))
     
-    story.append(Paragraph("<b>Detalle de Expedientes y Alumnos</b>", ParagraphStyle('SectionTitle', parent=styles['Heading2'], fontSize=11, spaceAfter=8, textColor=colors.HexColor('#0f172a'))))
+    story.append(Paragraph("<b>Detalle de Expedientes y Alumnos</b>", ParagraphStyle('SectionTitle', parent=styles['Heading2'], fontSize=10.5, spaceAfter=6, textColor=colors.HexColor('#0f172a'))))
     
-    # Detailed Table Columns: Código, Estudiante, Cédula, Carrera, Ciclo, Estado
+    # Detailed Table Columns: Código, Estudiante, Cédula, Teléfono, Correo, Carrera, Ciclo, Récord, Estado
     table_data = [
         [
             Paragraph("<b>Código</b>", header_style),
             Paragraph("<b>Estudiante</b>", header_style),
             Paragraph("<b>Cédula</b>", header_style),
-            Paragraph("<b>Carrera en la que se Graduó</b>", header_style),
-            Paragraph("<b>Ciclo Académico</b>", header_style),
+            Paragraph("<b>Teléfono</b>", header_style),
+            Paragraph("<b>Correo Electrónico</b>", header_style),
+            Paragraph("<b>Carrera Graduación</b>", header_style),
+            Paragraph("<b>Ciclo</b>", header_style),
+            Paragraph("<b>Récord</b>", header_style),
             Paragraph("<b>Estado Actual</b>", header_style)
         ]
     ]
     
     for sol in solicitudes:
-        ciclo_nom = sol.estudiante.ciclo.name if sol.estudiante.ciclo else 'N/A'
+        est = sol.estudiante
+        est_nombre = f"{est.lastname} {est.name}" if est else "N/A"
+        cedula_val = est.cedula if est else "N/A"
+        phone_val = est.phone if (est and est.phone) else "S/T"
+        email_val = est.email if (est and est.email) else "S/C"
+        if len(email_val) > 18:
+            email_val = email_val.replace('@', '<br/>@')
+            
+        carrera_nom = est.carrera.name if (est and est.carrera) else "N/A"
+        ciclo_nom = est.ciclo.name if (est and est.ciclo) else "N/A"
+        record_texto = "<font color='#16a34a'><b>Récord OK</b></font>" if sol.record_cargado else "<font color='#dc2626'><b>Falta</b></font>"
+        
         table_data.append([
             Paragraph(sol.code, cell_style),
-            Paragraph(f"{sol.estudiante.lastname} {sol.estudiante.name}", cell_style),
-            Paragraph(sol.estudiante.cedula, cell_style),
-            Paragraph(sol.estudiante.carrera.name, cell_style),
+            Paragraph(est_nombre, cell_style),
+            Paragraph(cedula_val, cell_style),
+            Paragraph(phone_val, cell_style),
+            Paragraph(email_val, cell_style),
+            Paragraph(carrera_nom, cell_style),
             Paragraph(ciclo_nom, cell_style),
+            Paragraph(record_texto, cell_style),
             Paragraph(f"<b>{sol.status}</b>", cell_style)
         ])
         
-    detailed_table = Table(table_data, colWidths=[65, 120, 60, 120, 95, 80])
+    detailed_table = Table(table_data, colWidths=[52, 105, 58, 65, 120, 125, 70, 65, 76], repeatRows=1)
     
     t_style = TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0f172a')),
         ('ALIGN', (0,0), (-1,-1), 'LEFT'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e1')),
     ])
     

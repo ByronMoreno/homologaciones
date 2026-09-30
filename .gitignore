@@ -39,3 +39,4 @@ htmlcov/
 records/
 uploads/
 app/static/uploads/
+RECORD*.pdf
